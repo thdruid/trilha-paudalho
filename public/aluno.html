@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha Paudalho — Estudante</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">TP</span>
+      <h1>Trilha Paudalho</h1>
+      <span>ambiente do estudante</span>
+      <div class="brand-right">
+        <span class="who" id="whoAmI"></span>
+        <button id="btnSair">Sair</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="content">
+
+    <div class="profile-row" id="profileRow">
+      <div class="loading">Carregando perfil…</div>
+    </div>
+
+    <div class="section-head">
+      <h2>Trilha: Algoritmos e Programação</h2>
+      <p>Toque em uma missão para abrir o desafio</p>
+    </div>
+
+    <div class="trail-card">
+      <svg class="trail-svg" viewBox="0 0 1000 220" id="trailSvg">
+        <path d="M40,160 C130,60 190,60 260,150 C330,240 390,240 460,150 C530,60 590,60 660,150 C730,240 790,240 860,150 C900,95 920,80 950,70"
+              fill="none" stroke="#dcded5" stroke-width="4" stroke-dasharray="1,10" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="section-head">
+      <h2>Conquistas</h2>
+      <p id="badgeCount"></p>
+    </div>
+    <div class="badges" id="badgeGrid"><div class="loading">Carregando conquistas…</div></div>
+
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Missão</h3>
+    <p class="desc" id="modalDesc"></p>
+    <div class="blocks" id="modalBlocks"></div>
+    <div class="modal-actions">
+      <span class="feedback" id="modalFeedback"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" id="closeModal">Fechar</button>
+        <button class="btn btn-primary" id="resetModal">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/aluno.js"></script>
+</body>
+</html>

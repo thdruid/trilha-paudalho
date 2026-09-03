@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha Paudalho — Gestão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">TP</span>
+      <h1>Trilha Paudalho</h1>
+      <span>painel de gestão</span>
+      <div class="brand-right">
+        <span class="who" id="whoAmI"></span>
+        <button id="btnSair">Sair</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="content">
+
+    <div class="kpis" id="kpiRow">
+      <div class="loading">Carregando indicadores…</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2 style="font-size:16px;margin-bottom:14px;">Participação por escola (%)</h2>
+        <div class="bars" id="barsEscolas"><div class="loading">Carregando…</div></div>
+      </div>
+      <div class="panel">
+        <h2 style="font-size:16px;margin-bottom:12px;">Indicadores por série</h2>
+        <table>
+          <thead><tr><th>Série</th><th>Estudantes</th><th>Conclusão</th></tr></thead>
+          <tbody id="seriesBody"><tr><td colspan="3" class="loading">Carregando…</td></tr></tbody>
+        </table>
+        <p class="tag" style="margin-top:14px;">Indicadores calculados em tempo real a partir do progresso registrado na base.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/gestao.js"></script>
+</body>
+</html>

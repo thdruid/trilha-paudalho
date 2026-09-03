@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha Paudalho — Professor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">TP</span>
+      <h1>Trilha Paudalho</h1>
+      <span>ambiente do professor</span>
+      <div class="brand-right">
+        <span class="who" id="whoAmI"></span>
+        <button id="btnSair">Sair</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="content">
+    <div class="grid-2">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <h2 style="font-size:17px;">Acompanhamento da turma</h2>
+          <select class="class-select" id="turmaSelect"></select>
+        </div>
+        <table>
+          <thead><tr><th>Estudante</th><th>Trilha atual</th><th>Progresso</th><th>Última atividade</th></tr></thead>
+          <tbody id="estudantesBody">
+            <tr><td colspan="4" class="loading">Carregando…</td></tr>
+          </tbody>
+        </table>
+        <div id="alertBox"></div>
+      </div>
+
+      <div class="panel">
+        <h2 style="font-size:17px;margin-bottom:4px;">Recursos pedagógicos</h2>
+        <p class="tag">Sequências didáticas alinhadas à BNCC Computação</p>
+        <div id="recursosList"><div class="loading">Carregando…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/professor.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha Paudalho — Entrar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>Trilha Paudalho</h1>
+      <p class="sub">BNCC Computação · Rede Municipal de Paudalho/PE</p>
+
+      <form id="loginForm">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" required>
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" required>
+        <div class="login-error" id="loginError"></div>
+        <button type="submit">Entrar</button>
+      </form>
+
+      <div class="demo-users">
+        <p>Acesso de demonstração (senha: 123456)</p>
+        <button type="button" data-email="mariajulia@aluno.paudalho.pe.gov.br">👩‍🎓 Aluna — Maria Julia (7º B)</button>
+        <button type="button" data-email="carlos.andrade@seduc.paudalho.pe.gov.br">🧑‍🏫 Professor — Carlos Andrade</button>
+        <button type="button" data-email="gestao@seduc.paudalho.pe.gov.br">🏛️ Gestão — Secretaria de Educação</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    document.querySelectorAll('.demo-users button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('email').value = btn.dataset.email;
+        document.getElementById('senha').value = '123456';
+      });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value;
+      const errorEl = document.getElementById('loginError');
+      errorEl.textContent = '';
+      try {
+        const data = await api('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, senha }),
+        });
+        Sessao.salvar(data.token, data.usuario);
+        window.location.href = `/${data.usuario.papel}.html`;
+      } catch (err) {
+        errorEl.textContent = err.message;
+      }
+    });
+
+    // se já estiver logado, manda direto
+    if (Sessao.token() && Sessao.usuario()) {
+      window.location.href = `/${Sessao.usuario().papel}.html`;
+    }
+  </script>
+</body>
+</html>
