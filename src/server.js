@@ -9,6 +9,7 @@ const professorRoutes = require('./routes/professor');
 const gestaoRoutes = require('./routes/gestao');
 
 const PORT = process.env.PORT || 4000;
+const usarPostgres = Boolean(process.env.DATABASE_URL) && process.env.DB_DRIVER !== 'json';
 
 function criarApp() {
   const app = express();
@@ -31,7 +32,17 @@ function criarApp() {
   app.use('/api/professor', professorRoutes);
   app.use('/api/gestao', gestaoRoutes);
 
-  app.get('/api/health', (req, res) => res.json({ ok: true }));
+  app.get('/api/health', async (req, res) => {
+    try {
+      if (usarPostgres) {
+        const { pool } = require('./postgres');
+        await pool.query('SELECT 1');
+      }
+      res.json({ ok: true, database: usarPostgres ? 'ok' : 'local' });
+    } catch (erro) {
+      res.status(503).json({ ok: false, database: 'indisponivel' });
+    }
+  });
 
 // front-end estático (login.html, aluno.html, professor.html, gestao.html)
   app.use(express.static(path.join(__dirname, '..', 'public')));

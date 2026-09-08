@@ -62,6 +62,7 @@ test('login rejeita credenciais inválidas e gera sessão para credenciais váli
 
 test('API envia cabeçalhos básicos de segurança', async () => {
   const resposta = await fetch(`${baseUrl}/health`);
+  assert.deepEqual(await resposta.clone().json(), { ok: true, database: 'local' });
   assert.equal(resposta.headers.get('x-powered-by'), null);
   assert.equal(resposta.headers.get('x-content-type-options'), 'nosniff');
   assert.equal(resposta.headers.get('x-frame-options'), 'DENY');

@@ -18,6 +18,8 @@ if (!process.env.DATABASE_URL) {
   after(() => servidor.close());
 
   test('Supabase atende login e preserva isolamento entre turmas', async () => {
+    const health = await fetch(`${baseUrl}/health`);
+    assert.deepEqual(await health.json(), { ok: true, database: 'ok' });
     const login = await fetch(`${baseUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
