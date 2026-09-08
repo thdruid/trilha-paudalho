@@ -91,13 +91,34 @@ router.post('/turma/:turmaId/estudante/:alunoId/feedback', async (req, res) => {
   res.status(201).json({ id: feedback.id, criado_em: feedback.criado_em });
 });
 
+router.get('/projetos', async (req, res) => {
+  const db = await readDB();
+  const professor = db.usuarios.find((u) => u.id === req.usuario.id);
+  const projetos = (db.projetos || []).filter((projeto) => {
+    const aluno = db.usuarios.find((u) => u.id === projeto.aluno_id);
+    return aluno && (professor.turmas_ids || []).includes(aluno.turma_id) && projeto.status !== 'rascunho';
+  }).map((projeto) => ({ ...projeto, aluno: db.usuarios.find((u) => u.id === projeto.aluno_id).nome }));
+  res.json(projetos);
+});
+
+router.post('/projetos/:id/revisao', async (req, res) => {
+  const db = await readDB(); const professor = db.usuarios.find((u) => u.id === req.usuario.id);
+  const projeto = (db.projetos || []).find((item) => item.id === Number(req.params.id));
+  const aluno = projeto && db.usuarios.find((u) => u.id === projeto.aluno_id);
+  const devolutiva = typeof req.body.devolutiva === 'string' ? req.body.devolutiva.trim() : '';
+  if (!projeto || !aluno || !(professor.turmas_ids || []).includes(aluno.turma_id)) return res.status(403).json({ erro: 'Sem permissão para revisar este projeto.' });
+  if (!devolutiva || devolutiva.length > 800) return res.status(400).json({ erro: 'A revisão deve ter entre 1 e 800 caracteres.' });
+  projeto.status = 'revisado'; projeto.professor_id = professor.id; projeto.devolutiva = devolutiva; projeto.atualizado_em = new Date().toISOString();
+  await writeDB(db); res.json(projeto);
+});
+
 // GET /api/professor/recursos — recursos pedagógicos estáticos alinhados à BNCC
 router.get('/recursos', (req, res) => {
   res.json([
-    { titulo: 'Plano de aula — Sequência lógica', tag: '6º ano · 2 aulas', formato: 'PDF' },
-    { titulo: 'Roteiro — Estruturas condicionais', tag: '7º ano · 3 aulas', formato: 'PDF' },
-    { titulo: 'Projeto — App para a comunidade', tag: '9º ano · 6 aulas', formato: 'PDF' },
-    { titulo: 'Rubrica de avaliação por projeto', tag: 'todas as séries', formato: 'XLSX' },
+    { titulo: 'Plano de aula — Sequência lógica', tag: '6º ano · 2 aulas', formato: 'Abrir guia', url: '/recursos/sequencia.html' },
+    { titulo: 'Roteiro — Estruturas condicionais', tag: '7º ano · 3 aulas', formato: 'Abrir guia', url: '/recursos/condicionais.html' },
+    { titulo: 'Projeto — App para a comunidade', tag: '9º ano · 6 aulas', formato: 'Abrir guia', url: '/recursos/projeto.html' },
+    { titulo: 'Rubrica de avaliação por projeto', tag: 'todas as séries', formato: 'Abrir guia', url: '/recursos/rubrica.html' },
   ]);
 });
 

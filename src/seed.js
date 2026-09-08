@@ -176,6 +176,7 @@ const usuario_conquistas = [
 ];
 
 const feedbacks = [];
+const projetos = [];
 
 // último acesso simulado (para calcular "dias sem atividade" no painel do professor)
 const hoje = new Date();
@@ -201,6 +202,7 @@ const db = {
   conquistas,
   usuario_conquistas,
   feedbacks,
+  projetos,
   ultimo_acesso,
   streak,
 };

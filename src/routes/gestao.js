@@ -46,7 +46,7 @@ router.get('/escolas', async (req, res) => {
     });
     const media = taxas.length ? Math.round((taxas.reduce((s, v) => s + v, 0) / taxas.length) * 100) : 0;
 
-    return { escola: escola.nome, participacao_pct: media, estudantes: alunosDaEscola.length };
+    return { id: escola.id, escola: escola.nome, participacao_pct: media, estudantes: alunosDaEscola.length };
   });
 
   res.json(dados);
@@ -71,6 +71,22 @@ router.get('/series', async (req, res) => {
   });
 
   res.json(dados);
+});
+
+router.get('/escola/:id/turmas', async (req, res) => {
+  const db = await readDB(); const escolaId = Number(req.params.id); const total = db.missoes.length;
+  if (!db.escolas.some((e) => e.id === escolaId)) return res.status(404).json({ erro: 'Escola não encontrada.' });
+  res.json(db.turmas.filter((t) => t.escola_id === escolaId).map((turma) => {
+    const alunos = db.usuarios.filter((u) => u.papel === 'aluno' && u.turma_id === turma.id);
+    const media = alunos.length ? Math.round(alunos.reduce((s, aluno) => s + db.progresso.filter((p) => p.usuario_id === aluno.id && p.status === 'concluida').length / total, 0) * 100 / alunos.length) : 0;
+    return { id: turma.id, nome: turma.nome, serie: turma.serie, estudantes: alunos.length, conclusao_pct: media };
+  }));
+});
+
+router.get('/turma/:id/estudantes', async (req, res) => {
+  const db = await readDB(); const turmaId = Number(req.params.id); const total = db.missoes.length;
+  if (!db.turmas.some((t) => t.id === turmaId)) return res.status(404).json({ erro: 'Turma não encontrada.' });
+  res.json(db.usuarios.filter((u) => u.papel === 'aluno' && u.turma_id === turmaId).map((aluno) => ({ id: aluno.id, nome: aluno.nome, progresso_pct: Math.round(db.progresso.filter((p) => p.usuario_id === aluno.id && p.status === 'concluida').length / total * 100) })));
 });
 
 module.exports = router;

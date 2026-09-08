@@ -24,11 +24,29 @@ function mostrarCarregando(elemento, texto, colspan = null) {
 
 async function init() {
   await carregarRecursos();
+  carregarProjetosEntregues();
   const turmas = await carregarTurmas();
   if (turmas.length) {
     document.getElementById('turmaSelect').addEventListener('change', (e) => carregarEstudantes(e.target.value));
     carregarEstudantes(turmas[0].id);
   }
+}
+
+async function carregarProjetosEntregues() {
+  const lista = document.getElementById('teacherProjects');
+  try {
+    const projetos = await api('/professor/projetos');
+    if (!projetos.length) { lista.textContent = 'Nenhum projeto entregue até agora.'; return; }
+    lista.replaceChildren(...projetos.map((projeto) => {
+      const card = document.createElement('article'); card.className = 'project-card';
+      const titulo = document.createElement('h3'); titulo.textContent = `${projeto.titulo} — ${projeto.aluno}`;
+      const problema = document.createElement('p'); problema.textContent = projeto.problema;
+      card.append(titulo, problema);
+      if (projeto.status === 'enviado') { const botao = document.createElement('button'); botao.className = 'btn btn-primary'; botao.textContent = 'Revisar'; botao.addEventListener('click', async () => { const devolutiva = window.prompt('Escreva uma devolutiva para o estudante:'); if (!devolutiva) return; await api(`/professor/projetos/${projeto.id}/revisao`, { method: 'POST', body: JSON.stringify({ devolutiva }) }); carregarProjetosEntregues(); }); card.appendChild(botao); }
+      else { const revisao = document.createElement('p'); revisao.className = 'project-review'; revisao.textContent = `Revisado: ${projeto.devolutiva}`; card.appendChild(revisao); }
+      return card;
+    }));
+  } catch (erro) { lista.textContent = erro.message; }
 }
 
 async function carregarTurmas() {
@@ -178,9 +196,10 @@ async function carregarRecursos() {
       tag.className = 'tag';
       tag.textContent = recurso.tag || '';
       conteudo.appendChild(tag);
-      const formato = document.createElement('span');
-      formato.className = 'tag';
+      const formato = document.createElement(recurso.url ? 'a' : 'span');
+      formato.className = recurso.url ? 'table-action' : 'tag';
       formato.textContent = recurso.formato || '';
+      if (recurso.url) { formato.href = recurso.url; formato.target = '_blank'; formato.rel = 'noopener'; }
       item.append(conteudo, formato);
       return item;
     }));

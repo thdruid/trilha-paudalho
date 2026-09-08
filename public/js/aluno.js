@@ -54,31 +54,45 @@ async function carregarFeedbacks() {
 }
 
 function configurarProjetos() {
-  const chave = `tp_projeto_rascunho_${usuarioLogado.id}`;
   const campos = {
     titulo: document.getElementById('projectTitle'),
     problema: document.getElementById('projectProblem'),
     plano: document.getElementById('projectPlan'),
   };
-  try {
-    const rascunho = JSON.parse(localStorage.getItem(chave) || '{}');
-    campos.titulo.value = rascunho.titulo || '';
-    campos.problema.value = rascunho.problema || '';
-    campos.plano.value = rascunho.plano || '';
-  } catch (_) {
-    localStorage.removeItem(chave);
-  }
   document.getElementById('projectForm').addEventListener('submit', (evento) => {
     evento.preventDefault();
-    localStorage.setItem(chave, JSON.stringify({
-      titulo: campos.titulo.value.trim(),
-      problema: campos.problema.value.trim(),
-      plano: campos.plano.value.trim(),
-    }));
-    const feedback = document.getElementById('projectFeedback');
-    feedback.textContent = 'Rascunho salvo neste aparelho.';
-    feedback.className = 'feedback ok';
+    salvarProjeto(campos);
   });
+  carregarProjetos();
+}
+
+async function salvarProjeto(campos) {
+  const feedback = document.getElementById('projectFeedback');
+  try {
+    await api('/aluno/projetos', { method: 'POST', body: JSON.stringify({ titulo: campos.titulo.value.trim(), problema: campos.problema.value.trim(), plano: campos.plano.value.trim() }) });
+    feedback.textContent = 'Projeto salvo. Envie quando estiver pronto.';
+    feedback.className = 'feedback ok';
+    document.getElementById('projectForm').reset();
+    carregarProjetos();
+  } catch (erro) { feedback.textContent = erro.message; feedback.className = 'feedback err'; }
+}
+
+async function carregarProjetos() {
+  const lista = document.getElementById('projectSubmissions');
+  try {
+    const projetos = await api('/aluno/projetos');
+    if (!projetos.length) { lista.textContent = 'Você ainda não criou um projeto.'; return; }
+    lista.replaceChildren(...projetos.map((projeto) => {
+      const card = document.createElement('article'); card.className = 'project-card';
+      const titulo = document.createElement('h3'); titulo.textContent = projeto.titulo;
+      const status = document.createElement('span'); status.className = `project-status ${projeto.status}`; status.textContent = projeto.status;
+      const plano = document.createElement('p'); plano.textContent = projeto.plano;
+      card.append(titulo, status, plano);
+      if (projeto.devolutiva) { const devolutiva = document.createElement('p'); devolutiva.className = 'project-review'; devolutiva.textContent = `Revisão: ${projeto.devolutiva}`; card.appendChild(devolutiva); }
+      if (projeto.status === 'rascunho') { const enviar = document.createElement('button'); enviar.className = 'btn btn-primary'; enviar.textContent = 'Entregar ao professor'; enviar.addEventListener('click', async () => { await api(`/aluno/projetos/${projeto.id}/enviar`, { method: 'POST' }); carregarProjetos(); }); card.appendChild(enviar); }
+      return card;
+    }));
+  } catch (erro) { lista.textContent = erro.message; }
 }
 
 async function carregarPerfil() {

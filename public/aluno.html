@@ -120,8 +120,8 @@
           <textarea id="projectProblem" maxlength="500" placeholder="Conte o que acontece e para quem isso é importante."></textarea>
           <label for="projectPlan">Primeiro passo do algoritmo</label>
           <textarea id="projectPlan" maxlength="500" placeholder="Ex.: perguntar o bairro e mostrar os pontos mais próximos."></textarea>
-          <p class="tag">O rascunho fica salvo somente neste aparelho.</p>
-          <button class="btn btn-primary" type="submit">Salvar rascunho</button>
+          <p class="tag">Salve como rascunho e envie ao professor quando estiver pronto.</p>
+          <button class="btn btn-primary" type="submit">Salvar projeto</button>
           <span class="feedback" id="projectFeedback" role="status"></span>
         </form>
         <aside class="project-guide">
@@ -135,6 +135,7 @@
           <p>Quando o projeto estiver pronto para a turma, ele pode virar uma atividade acompanhada pelo professor.</p>
         </aside>
       </div>
+      <div class="project-submissions" id="projectSubmissions"><div class="loading">Carregando projetos…</div></div>
     </section>
 
     <section id="feedbackPanel" hidden aria-labelledby="feedbackTitle">
@@ -142,7 +143,7 @@
         <div>
           <span class="learn-kicker">Acompanhamento individual</span>
           <h2 id="feedbackTitle">Feedbacks para você</h2>
-          <p>Este é um espaço privado: somente você e o professor que enviou a mensagem podem ver estes feedbacks.</p>
+          <p>Este é um espaço privado: somente você pode acessar esta tela e ler os feedbacks destinados ao seu percurso.</p>
         </div>
         <span class="learn-illustration" aria-hidden="true">💬</span>
       </div>

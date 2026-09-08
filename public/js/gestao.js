@@ -9,6 +9,8 @@ if (usuarioLogado) {
   carregarEscolas();
   carregarSeries();
   document.getElementById('downloadReport').addEventListener('click', baixarRelatorio);
+  document.getElementById('schoolDetail').addEventListener('change', (e) => carregarTurmasDetalhe(e.target.value));
+  document.getElementById('classDetail').addEventListener('change', (e) => carregarEstudantesDetalhe(e.target.value));
 }
 
 function numero(valor, limite = Infinity) {
@@ -61,6 +63,9 @@ async function carregarEscolas() {
   try {
     const escolas = await api('/gestao/escolas');
     escolasDoRelatorio = escolas;
+    const seletor = document.getElementById('schoolDetail');
+    seletor.replaceChildren(...escolas.map((escola) => Object.assign(document.createElement('option'), { value: escola.id, textContent: escola.escola })));
+    if (escolas.length) carregarTurmasDetalhe(escolas[0].id);
     const max = Math.max(...escolas.map((e) => numero(e.participacao_pct, 100)), 1);
     area.replaceChildren(...escolas.map((escola) => {
       const percentual = numero(escola.participacao_pct, 100);
@@ -92,6 +97,15 @@ async function carregarSeries() {
   } catch (err) {
     erro(corpo, err.message, 3);
   }
+}
+
+async function carregarTurmasDetalhe(escolaId) {
+  const seletor = document.getElementById('classDetail');
+  try { const turmas = await api(`/gestao/escola/${escolaId}/turmas`); seletor.disabled = !turmas.length; seletor.replaceChildren(...turmas.map((turma) => Object.assign(document.createElement('option'), { value: turma.id, textContent: `${turma.nome} · ${turma.conclusao_pct}%` }))); if (turmas.length) carregarEstudantesDetalhe(turmas[0].id); } catch (err) { erro(document.getElementById('studentDetail'), err.message, 2); }
+}
+async function carregarEstudantesDetalhe(turmaId) {
+  const corpo = document.getElementById('studentDetail');
+  try { const estudantes = await api(`/gestao/turma/${turmaId}/estudantes`); corpo.replaceChildren(...estudantes.map((estudante) => { const linha = document.createElement('tr'); [estudante.nome, `${numero(estudante.progresso_pct, 100)}%`].forEach((valor) => { const td = document.createElement('td'); td.textContent = valor; linha.appendChild(td); }); return linha; })); } catch (err) { erro(corpo, err.message, 2); }
 }
 
 function csvSeguro(valor) {

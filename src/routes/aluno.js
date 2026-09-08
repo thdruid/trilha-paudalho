@@ -95,6 +95,34 @@ router.get('/feedbacks', async (req, res) => {
   res.json(feedbacks);
 });
 
+router.get('/projetos', async (req, res) => {
+  const db = await readDB();
+  res.json((db.projetos || []).filter((projeto) => projeto.aluno_id === req.usuario.id).sort((a, b) => new Date(b.atualizado_em) - new Date(a.atualizado_em)));
+});
+
+router.post('/projetos', async (req, res) => {
+  const db = await readDB();
+  const campos = ['titulo', 'problema', 'plano'];
+  const dados = Object.fromEntries(campos.map((campo) => [campo, typeof req.body[campo] === 'string' ? req.body[campo].trim() : '']));
+  if (!dados.titulo || dados.titulo.length > 70 || !dados.problema || dados.problema.length > 500 || !dados.plano || dados.plano.length > 500) return res.status(400).json({ erro: 'Preencha título, problema e plano dentro dos limites informados.' });
+  const projetos = db.projetos || [];
+  const agora = new Date().toISOString();
+  const projeto = { id: projetos.length ? Math.max(...projetos.map((item) => item.id)) + 1 : 1, aluno_id: req.usuario.id, ...dados, status: 'rascunho', criado_em: agora, atualizado_em: agora, professor_id: null, devolutiva: null };
+  projetos.push(projeto);
+  db.projetos = projetos;
+  await writeDB(db);
+  res.status(201).json(projeto);
+});
+
+router.post('/projetos/:id/enviar', async (req, res) => {
+  const db = await readDB();
+  const projeto = (db.projetos || []).find((item) => item.id === Number(req.params.id) && item.aluno_id === req.usuario.id);
+  if (!projeto) return res.status(404).json({ erro: 'Projeto não encontrado.' });
+  projeto.status = 'enviado'; projeto.atualizado_em = new Date().toISOString();
+  await writeDB(db);
+  res.json(projeto);
+});
+
 // POST /api/aluno/missao/:id/tentativa  { ordem: [0,2,1,...] }
 // Valida a ordem enviada pelo aluno contra o gabarito da missão.
 router.post('/missao/:id/tentativa', async (req, res) => {
