@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'troque-esta-chave-em-producao';
+const CHAVE_PADRAO = 'troque-esta-chave-em-producao';
+const SECRET = process.env.JWT_SECRET || CHAVE_PADRAO;
+
+if (process.env.NODE_ENV === 'production' && (SECRET === CHAVE_PADRAO || SECRET.length < 32)) {
+  throw new Error('JWT_SECRET deve ter ao menos 32 caracteres em produção.');
+}
 
 function gerarToken(usuario) {
   return jwt.sign(

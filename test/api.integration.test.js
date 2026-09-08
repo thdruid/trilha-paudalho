@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { before, after, test } = require('node:test');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 const bcrypt = require('bcryptjs');
 const { criarApp } = require('../src/server');
 const { readDB, writeDB } = require('../src/db');
@@ -103,4 +103,13 @@ test('login limita tentativas repetidas no mesmo endereço', async () => {
   const bloqueada = await requisicao('/auth/login', opcoes);
   assert.equal(bloqueada.status, 429);
   assert.match(bloqueada.corpo.erro, /Muitas tentativas/);
+});
+
+test('produção exige uma chave JWT forte', () => {
+  const resultado = spawnSync(process.execPath, ['-e', "require('./src/auth')"], {
+    cwd: process.cwd(),
+    env: { ...process.env, NODE_ENV: 'production', JWT_SECRET: '' },
+  });
+  assert.notEqual(resultado.status, 0);
+  assert.match(resultado.stderr.toString(), /JWT_SECRET deve ter ao menos 32 caracteres/);
 });
