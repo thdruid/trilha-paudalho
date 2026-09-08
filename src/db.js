@@ -22,6 +22,7 @@ function writeDB(data) {
   // The rename only happens after the whole JSON document has been written.
   // Synchronous route handlers serialize read-modify-write in one Node process;
   // multi-process deployments still require a proper database.
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
   const tempPath = `${DB_PATH}.${process.pid}.${Date.now()}.tmp`;
   try {
     fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf-8');
