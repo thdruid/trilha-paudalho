@@ -1,4 +1,6 @@
 const usuarioLogado = Sessao.exigirPapel('gestor');
+let escolasDoRelatorio = [];
+let seriesDoRelatorio = [];
 
 if (usuarioLogado) {
   document.getElementById('whoAmI').textContent = usuarioLogado.nome;
@@ -6,6 +8,7 @@ if (usuarioLogado) {
   carregarKpis();
   carregarEscolas();
   carregarSeries();
+  document.getElementById('downloadReport').addEventListener('click', baixarRelatorio);
 }
 
 function numero(valor, limite = Infinity) {
@@ -57,6 +60,7 @@ async function carregarEscolas() {
   const area = document.getElementById('barsEscolas');
   try {
     const escolas = await api('/gestao/escolas');
+    escolasDoRelatorio = escolas;
     const max = Math.max(...escolas.map((e) => numero(e.participacao_pct, 100)), 1);
     area.replaceChildren(...escolas.map((escola) => {
       const percentual = numero(escola.participacao_pct, 100);
@@ -75,6 +79,7 @@ async function carregarSeries() {
   const corpo = document.getElementById('seriesBody');
   try {
     const series = await api('/gestao/series');
+    seriesDoRelatorio = series;
     corpo.replaceChildren(...series.map((serie) => {
       const linha = document.createElement('tr');
       [serie.serie, numero(serie.estudantes), `${numero(serie.conclusao_pct, 100)}%`].forEach((valor) => {
@@ -87,4 +92,31 @@ async function carregarSeries() {
   } catch (err) {
     erro(corpo, err.message, 3);
   }
+}
+
+function csvSeguro(valor) {
+  return `"${String(valor ?? '').replace(/"/g, '""')}"`;
+}
+
+function baixarRelatorio() {
+  if (!escolasDoRelatorio.length && !seriesDoRelatorio.length) return;
+  const linhas = [
+    ['Relatório Trilha Paudalho', new Date().toLocaleDateString('pt-BR')],
+    [],
+    ['Participação por escola'],
+    ['Escola', 'Estudantes', 'Conclusão média (%)'],
+    ...escolasDoRelatorio.map((e) => [e.escola, e.estudantes, e.participacao_pct]),
+    [],
+    ['Indicadores por série'],
+    ['Série', 'Estudantes', 'Conclusão média (%)'],
+    ...seriesDoRelatorio.map((s) => [s.serie, s.estudantes, s.conclusao_pct]),
+  ];
+  const conteudo = `\uFEFF${linhas.map((linha) => linha.map(csvSeguro).join(';')).join('\n')}`;
+  const arquivo = new Blob([conteudo], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(arquivo);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'relatorio-trilha-paudalho.csv';
+  link.click();
+  URL.revokeObjectURL(url);
 }

@@ -1,8 +1,11 @@
 const usuarioLogado = Sessao.exigirPapel('professor');
+let estudanteSelecionado = null;
 
 if (usuarioLogado) {
   document.getElementById('whoAmI').textContent = usuarioLogado.nome;
   document.getElementById('btnSair').addEventListener('click', Sessao.sair);
+  document.getElementById('feedbackForm').addEventListener('submit', enviarFeedback);
+  document.getElementById('closeFeedback').addEventListener('click', fecharFeedback);
   init();
 }
 
@@ -47,7 +50,7 @@ async function carregarTurmas() {
 
 async function carregarEstudantes(turmaId) {
   const body = document.getElementById('estudantesBody');
-  mostrarCarregando(body, 'Carregando…', 4);
+  mostrarCarregando(body, 'Carregando…', 5);
   try {
     const estudantes = await api(`/professor/turma/${turmaId}/estudantes`);
     body.replaceChildren(...estudantes.map((estudante) => {
@@ -69,10 +72,19 @@ async function carregarEstudantes(turmaId) {
       const ultimaAtividade = document.createElement('td');
       ultimaAtividade.textContent = formatarUltimaAtividade(estudante.dias_sem_atividade);
       linha.appendChild(ultimaAtividade);
+      const acao = document.createElement('td');
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.className = 'table-action';
+      botao.textContent = 'Feedback';
+      botao.addEventListener('click', () => abrirFeedback(estudante, turmaId));
+      acao.appendChild(botao);
+      linha.appendChild(acao);
       return linha;
     }));
 
     const emRisco = estudantes.filter((e) => e.dias_sem_atividade !== null && e.dias_sem_atividade >= 7);
+    renderizarResumoTurma(estudantes, emRisco);
     const alertBox = document.getElementById('alertBox');
     alertBox.replaceChildren();
     if (emRisco.length) {
@@ -82,8 +94,68 @@ async function carregarEstudantes(turmaId) {
       alertBox.appendChild(alerta);
     }
   } catch (err) {
-    mostrarCarregando(body, err.message, 4);
+    mostrarCarregando(body, err.message, 5);
   }
+}
+
+function abrirFeedback(estudante, turmaId) {
+  estudanteSelecionado = { id: estudante.id, turmaId, nome: estudante.nome };
+  document.getElementById('feedbackStudent').textContent = `Feedback para ${estudante.nome}`;
+  document.getElementById('feedbackMessage').value = '';
+  document.getElementById('feedbackStatus').textContent = '';
+  document.getElementById('feedbackComposer').hidden = false;
+  document.getElementById('feedbackComposer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('feedbackMessage').focus();
+}
+
+function fecharFeedback() {
+  estudanteSelecionado = null;
+  document.getElementById('feedbackComposer').hidden = true;
+}
+
+async function enviarFeedback(evento) {
+  evento.preventDefault();
+  if (!estudanteSelecionado) return;
+  const status = document.getElementById('feedbackStatus');
+  const mensagem = document.getElementById('feedbackMessage').value.trim();
+  status.textContent = 'Enviando…';
+  status.className = 'feedback';
+  try {
+    await api(`/professor/turma/${estudanteSelecionado.turmaId}/estudante/${estudanteSelecionado.id}/feedback`, {
+      method: 'POST',
+      body: JSON.stringify({ mensagem }),
+    });
+    status.textContent = 'Feedback enviado de forma privada.';
+    status.className = 'feedback ok';
+    document.getElementById('feedbackMessage').value = '';
+  } catch (erro) {
+    status.textContent = erro.message;
+    status.className = 'feedback err';
+  }
+}
+
+function renderizarResumoTurma(estudantes, emRisco) {
+  const destino = document.getElementById('teacherSummary');
+  if (!estudantes.length) {
+    destino.replaceChildren();
+    return;
+  }
+  const media = Math.round(estudantes.reduce((soma, estudante) => soma + (Number(estudante.progresso_pct) || 0), 0) / estudantes.length);
+  const itens = [
+    [String(estudantes.length), 'estudantes acompanhados'],
+    [`${media}%`, 'progresso médio da turma'],
+    [String(emRisco.length), 'precisam de atenção'],
+  ];
+  destino.replaceChildren(...itens.map(([valor, texto]) => {
+    const cartao = document.createElement('div');
+    cartao.className = 'teacher-stat';
+    const numero = document.createElement('strong');
+    numero.textContent = valor;
+    const rotulo = document.createElement('span');
+    rotulo.textContent = texto;
+    cartao.append(numero, rotulo);
+    return cartao;
+  }));
 }
 
 function formatarUltimaAtividade(dias) {

@@ -46,6 +46,10 @@ h1,h2,h3,.display{
   border-radius:7px;padding:6px 12px;font-size:12.5px;cursor:pointer;
 }
 .brand-right button:hover{color:#fff;border-color:#4a5a80;}
+.student-nav{display:flex;gap:4px;}
+.student-tab{border:0;border-bottom:3px solid transparent;background:transparent;color:#aeb8ca;padding:10px 15px;font:500 14px 'IBM Plex Sans';cursor:pointer;}
+.student-tab:hover{color:#fff;}
+.student-tab.active{color:#fff;border-bottom-color:var(--coral);}
 
 .tabbar{display:flex;gap:2px;}
 .tabbar a{
@@ -140,7 +144,7 @@ h1,h2,h3,.display{
 /* modal */
 .overlay{display:none;position:fixed;inset:0;background:rgba(16,27,48,.55);align-items:center;justify-content:center;z-index:50;padding:20px;}
 .overlay.active{display:flex;}
-.modal{background:#fff;border-radius:12px;max-width:480px;width:100%;padding:26px 26px 22px;}
+.modal{background:#fff;border-radius:12px;max-width:580px;width:100%;max-height:calc(100dvh - 40px);overflow-y:auto;padding:26px 26px 22px;}
 .modal h3{font-size:17px;margin-bottom:6px;}
 .modal p.desc{font-size:13.5px;color:var(--ink-soft);margin:0 0 18px;line-height:1.5;}
 .blocks{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
@@ -159,6 +163,94 @@ h1,h2,h3,.display{
 .btn{border:none;border-radius:7px;padding:9px 16px;font-family:'IBM Plex Sans';font-size:13.5px;font-weight:600;cursor:pointer;}
 .btn-primary{background:var(--navy);color:#fff;}
 .btn-ghost{background:transparent;color:var(--ink-soft);}
+
+/* Laboratório visual da primeira missão */
+.challenge-lab{
+  display:grid;grid-template-columns:1fr 210px;gap:14px;align-items:center;
+  padding:14px;margin:0 0 16px;background:#f4f8f4;border:1px solid #d6e6df;border-radius:10px;
+}
+.lab-copy{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-soft);}
+.lab-copy strong{font-size:14px;color:var(--ink);}
+.lab-kicker{color:var(--teal-dark);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.game-board{
+  position:relative;width:186px;height:124px;justify-self:end;border-radius:8px;
+  background-color:#dff1dc;background-image:linear-gradient(90deg,rgba(18,134,122,.12) 1px,transparent 1px),linear-gradient(rgba(18,134,122,.12) 1px,transparent 1px);
+  background-size:62px 62px;overflow:hidden;
+}
+.game-board.pomar{background-color:#eaf3d8;}
+.game-board.jardim{background-color:#e3f4ee;background-image:radial-gradient(circle at 15px 18px,#f3c84b 0 5px,transparent 6px),linear-gradient(90deg,rgba(18,134,122,.1) 1px,transparent 1px),linear-gradient(rgba(18,134,122,.1) 1px,transparent 1px);}
+.game-board.lago{background-color:#dff1f4;background-image:radial-gradient(ellipse at 25px 28px,rgba(255,255,255,.7) 0 10px,transparent 11px),linear-gradient(90deg,rgba(18,134,122,.1) 1px,transparent 1px),linear-gradient(rgba(18,134,122,.1) 1px,transparent 1px);}
+.game-start{position:absolute;left:7px;top:6px;font-size:11px;color:var(--teal-dark);font-weight:700;}
+.game-apple,.game-bot{position:absolute;width:44px;height:44px;display:grid;place-items:center;font-size:28px;z-index:1;}
+.game-apple{left:64px;top:64px;}
+.game-bot{left:2px;top:2px;transition:transform .48s cubic-bezier(.2,.8,.2,1);transform-origin:center;}
+.btn-run{grid-column:1 / -1;justify-self:start;background:var(--teal);color:#fff;}
+.btn-run:disabled{background:#a4b7b0;cursor:not-allowed;}
+.code-lab{border:1px solid #d6e6df;border-radius:10px;background:#f7faf8;padding:14px;margin-bottom:16px;}
+.code-lab-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:10px;}
+.code-lab-head span{font-family:'Space Grotesk';font-size:14px;font-weight:600;}
+.code-lab-head small{font-size:11.5px;color:var(--ink-soft);}
+.snippet-tray{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.snippet-btn{border:1px solid #b8d7d0;background:#fff;color:var(--teal-dark);border-radius:6px;padding:5px 7px;font:12px monospace;cursor:pointer;}
+.snippet-btn:hover{background:#e2f2ef;}
+#codeEditor{display:block;width:100%;min-height:150px;resize:vertical;border:1px solid #b8d7d0;border-radius:7px;padding:10px;background:#17243b;color:#e8f6f2;font:13px/1.55 monospace;outline:none;margin-bottom:10px;}
+#codeEditor:focus{border-color:var(--teal);box-shadow:0 0 0 2px rgba(18,134,122,.14);}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+/* Biblioteca de aprendizagem */
+.learn-hero{display:flex;justify-content:space-between;gap:20px;align-items:center;background:linear-gradient(120deg,#e2f2ef,#f8f1de);border:1px solid #d6e6df;border-radius:var(--radius);padding:24px;margin-bottom:18px;}
+.learn-kicker{color:var(--teal-dark);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
+.learn-hero h2{font-size:23px;margin:4px 0 6px;}
+.learn-hero p{color:var(--ink-soft);font-size:13.5px;line-height:1.55;max-width:650px;margin:0;}
+.learn-illustration{font-size:54px;line-height:1;}
+.learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:12px;}
+.learn-card{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;}
+.learn-card summary{display:flex;gap:11px;align-items:center;cursor:pointer;list-style:none;}
+.learn-card summary::-webkit-details-marker{display:none;}
+.learn-icon{width:36px;height:36px;display:grid;place-items:center;background:#e2f2ef;border-radius:9px;font-size:18px;}
+.learn-card strong{display:block;font-family:'Space Grotesk';font-size:15px;}
+.learn-card small{display:block;color:var(--ink-soft);font-size:11.5px;margin-top:1px;}
+.learn-card p{font-size:13px;color:var(--ink-soft);line-height:1.45;margin:13px 0 8px;}
+.learn-card code{display:block;white-space:pre-wrap;background:#17243b;color:#e8f6f2;border-radius:7px;padding:9px;font:12px/1.45 monospace;}
+.project-layout{display:grid;grid-template-columns:1.4fr .9fr;gap:16px;}
+.project-form,.project-guide{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+.project-form label{display:block;font-size:12.5px;color:var(--ink-soft);margin:0 0 5px;}
+.project-form input,.project-form textarea{display:block;width:100%;border:1px solid var(--line);border-radius:7px;padding:9px 10px;font:13px 'IBM Plex Sans';margin:0 0 13px;resize:vertical;}
+.project-form textarea{min-height:88px;}
+.project-form .tag{margin:-4px 0 12px;}
+.project-form .feedback{margin-left:9px;}
+.project-guide{background:#f7faf8;}
+.project-guide h3,.mediation-guide h3{font-size:15px;margin:0 0 8px;}
+.project-guide ol{padding-left:20px;margin:0 0 12px;color:var(--ink-soft);font-size:13px;line-height:1.7;}
+.project-guide p,.mediation-guide p{margin:0;color:var(--ink-soft);font-size:12.5px;line-height:1.5;}
+
+/* Contexto pedagógico para professor e gestão */
+.impact-banner{display:flex;align-items:center;justify-content:space-between;gap:22px;border-radius:var(--radius);padding:22px 24px;margin-bottom:16px;border:1px solid #d6e6df;}
+.teacher-banner{background:linear-gradient(120deg,#e2f2ef,#f7f7f3);}
+.management-banner{background:linear-gradient(120deg,#e8eef9,#e2f2ef);}
+.impact-banner h2{font-size:21px;margin:4px 0 5px;}
+.impact-banner p{color:var(--ink-soft);font-size:13.5px;line-height:1.5;max-width:720px;margin:0;}
+.impact-icon{font-size:46px;}
+.teacher-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.teacher-stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;}
+.teacher-stat strong{display:block;font:700 22px 'Space Grotesk';color:var(--teal-dark);}
+.teacher-stat span{font-size:12px;color:var(--ink-soft);}
+.mediation-guide{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;}
+.report-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px;color:var(--ink-soft);font-size:12.5px;}
+.feedback-hero{background:linear-gradient(120deg,#e2f2ef,#eef1ec);}
+.feedback-list{display:grid;gap:10px;}
+.feedback-card,.empty-state{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
+.feedback-card{border-left:4px solid var(--teal);}
+.feedback-card-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;}
+.feedback-card-head strong{font-family:'Space Grotesk';font-size:14px;}
+.feedback-card-head time{font-size:12px;color:var(--ink-soft);}
+.feedback-card p{white-space:pre-wrap;font-size:13.5px;line-height:1.5;margin:8px 0 0;}
+.empty-state{color:var(--ink-soft);font-size:13px;}
+.table-action{border:1px solid #b8d7d0;background:#fff;color:var(--teal-dark);border-radius:6px;padding:5px 8px;font:600 12px 'IBM Plex Sans';cursor:pointer;}
+.table-action:hover{background:#e2f2ef;}
+.feedback-composer{margin-top:20px;}
+.feedback-composer textarea{display:block;width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px;font:13px 'IBM Plex Sans';}
+.feedback-form-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;}
 
 /* Professor */
 .grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;margin-bottom:24px;}
@@ -194,4 +286,21 @@ td{padding:9px 8px;border-bottom:1px solid #ececE3;}
 @media (max-width:760px){
   .grid-2{grid-template-columns:1fr;}
   .kpis{grid-template-columns:1fr 1fr;}
+  .challenge-lab{grid-template-columns:1fr;}
+  .game-board{justify-self:start;}
+  .code-lab-head{align-items:flex-start;flex-direction:column;gap:2px;}
+  .overlay{align-items:flex-start;padding:10px;overflow-y:auto;}
+  .modal{max-height:none;margin:auto 0;padding:20px 16px;}
+  .modal-actions{gap:10px;align-items:flex-start;flex-direction:column;}
+  .game-board{max-width:100%;}
+  .learn-hero{padding:18px;align-items:flex-start;}
+  .learn-hero h2{font-size:20px;}
+  .learn-illustration{font-size:38px;}
+  .project-layout{grid-template-columns:1fr;}
+  .impact-banner{padding:18px;align-items:flex-start;}
+  .impact-banner h2{font-size:19px;}
+  .impact-icon{font-size:34px;}
+  .teacher-summary{grid-template-columns:1fr;}
+  .report-toolbar{align-items:flex-start;flex-direction:column;}
+  .feedback-form-actions{align-items:flex-start;flex-direction:column;}
 }

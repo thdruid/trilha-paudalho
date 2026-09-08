@@ -175,6 +175,8 @@ const usuario_conquistas = [
   { usuario_id: 3, conquista_id: 4, obtida_em: new Date().toISOString() },
 ];
 
+const feedbacks = [];
+
 // último acesso simulado (para calcular "dias sem atividade" no painel do professor)
 const hoje = new Date();
 const diasAtras = (n) => new Date(hoje.getTime() - n * 24 * 60 * 60 * 1000).toISOString();
@@ -198,6 +200,7 @@ const db = {
   progresso,
   conquistas,
   usuario_conquistas,
+  feedbacks,
   ultimo_acesso,
   streak,
 };

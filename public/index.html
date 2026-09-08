@@ -1,71 +1,74 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101b30">
-<link rel="manifest" href="/manifest.webmanifest">
-<title>Trilha Paudalho — Entrar</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101b30">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title>Trilha Paudalho — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="login-wrap">
-    <div class="login-card">
-      <h1>Trilha Paudalho</h1>
-      <p class="sub">BNCC Computação · Rede Municipal de Paudalho/PE</p>
+  <main class="login-wrap">
+    <section class="login-card" aria-labelledby="titulo-login">
+      <h1 id="titulo-login">Trilha Paudalho</h1>
+      <p class="sub">BNCC Computação · Rede Municipal de Paudalho</p>
 
       <form id="loginForm">
         <label for="email">E-mail</label>
-        <input type="email" id="email" required>
+        <input id="email" type="email" autocomplete="email" required>
+
         <label for="senha">Senha</label>
-        <input type="password" id="senha" required>
-        <div class="login-error" id="loginError"></div>
-        <button type="submit">Entrar</button>
+        <input id="senha" type="password" autocomplete="current-password" required>
+
+        <p id="loginError" class="login-error" role="alert"></p>
+        <button type="submit" class="btn-primary">Entrar</button>
       </form>
 
       <div class="demo-users">
-        <p>Acesso de demonstração (senha: 123456)</p>
-        <button type="button" data-email="mariajulia@aluno.paudalho.pe.gov.br">👩‍🎓 Aluna — Maria Julia (7º B)</button>
-        <button type="button" data-email="carlos.andrade@seduc.paudalho.pe.gov.br">🧑‍🏫 Professor — Carlos Andrade</button>
-        <button type="button" data-email="gestao@seduc.paudalho.pe.gov.br">🏛️ Gestão — Secretaria de Educação</button>
+        <p>Contas de demonstração — use a senha fornecida pela equipe responsável.</p>
+        <button type="button" data-email="mariajulia@aluno.paudalho.pe.gov.br">Acessar como aluna</button>
+        <button type="button" data-email="carlos.andrade@seduc.paudalho.pe.gov.br">Acessar como professor</button>
+        <button type="button" data-email="gestao@seduc.paudalho.pe.gov.br">Acessar como gestão</button>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script src="/js/api.js"></script>
   <script>
-    document.querySelectorAll('.demo-users button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('email').value = btn.dataset.email;
-        document.getElementById('senha').value = '123456';
+    const usuarioAtual = Sessao.usuario();
+    if (Sessao.token() && usuarioAtual) {
+      window.location.href = `/${usuarioAtual.papel === 'gestor' ? 'gestao' : usuarioAtual.papel}.html`;
+    }
+
+    document.querySelectorAll('.demo-users button').forEach((botao) => {
+      botao.addEventListener('click', () => {
+        document.getElementById('email').value = botao.dataset.email;
+        document.getElementById('senha').focus();
       });
     });
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const senha = document.getElementById('senha').value;
-      const errorEl = document.getElementById('loginError');
-      errorEl.textContent = '';
+    document.getElementById('loginForm').addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      const erro = document.getElementById('loginError');
+      erro.textContent = '';
+
       try {
-        const data = await api('/auth/login', {
+        const dados = await api('/auth/login', {
           method: 'POST',
-          body: JSON.stringify({ email, senha }),
+          body: JSON.stringify({
+            email: document.getElementById('email').value,
+            senha: document.getElementById('senha').value
+          })
         });
-        Sessao.salvar(data.token, data.usuario);
-        window.location.href = `/${data.usuario.papel === 'gestor' ? 'gestao' : data.usuario.papel}.html`;
-      } catch (err) {
-        errorEl.textContent = err.message;
+        Sessao.salvar(dados.token, dados.usuario);
+        window.location.href = `/${dados.usuario.papel === 'gestor' ? 'gestao' : dados.usuario.papel}.html`;
+      } catch (falha) {
+        erro.textContent = falha.message || 'Não foi possível entrar. Tente novamente.';
       }
     });
-
-    // se já estiver logado, manda direto
-    if (Sessao.token() && Sessao.usuario()) {
-      const papel = Sessao.usuario().papel;
-      window.location.href = `/${papel === 'gestor' ? 'gestao' : papel}.html`;
-    }
   </script>
 </body>
 </html>

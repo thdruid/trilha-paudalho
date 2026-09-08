@@ -68,6 +68,7 @@ router.get('/missao/:id', async (req, res) => {
 
   res.json({
     id: missao.id,
+    ordem: missao.ordem,
     titulo: missao.titulo,
     enunciado: missao.enunciado,
     blocos: missao.blocos,
@@ -75,6 +76,23 @@ router.get('/missao/:id', async (req, res) => {
     status: p.status,
     xp: missao.xp,
   });
+});
+
+// GET /api/aluno/feedbacks — somente os feedbacks destinados ao aluno logado.
+router.get('/feedbacks', async (req, res) => {
+  const db = await readDB();
+  const feedbacks = (db.feedbacks || [])
+    .filter((feedback) => feedback.aluno_id === req.usuario.id)
+    .map((feedback) => {
+      const professor = db.usuarios.find((usuario) => usuario.id === feedback.professor_id);
+      return {
+        id: feedback.id,
+        mensagem: feedback.mensagem,
+        criado_em: feedback.criado_em,
+        professor: professor ? professor.nome : 'Professor(a)',
+      };
+    });
+  res.json(feedbacks);
 });
 
 // POST /api/aluno/missao/:id/tentativa  { ordem: [0,2,1,...] }

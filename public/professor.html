@@ -28,6 +28,15 @@
 
 <div class="shell">
   <div class="content">
+    <div class="impact-banner teacher-banner">
+      <div>
+        <span class="learn-kicker">Planejamento e mediação pedagógica</span>
+        <h2>Use os dados para apoiar cada estudante.</h2>
+        <p>Combine as sequências alinhadas ao currículo com acompanhamento contínuo, feedback e intervenções no momento certo.</p>
+      </div>
+      <span class="impact-icon" aria-hidden="true">🧑‍🏫</span>
+    </div>
+    <div class="teacher-summary" id="teacherSummary" aria-live="polite"></div>
     <div class="grid-2">
       <div class="panel">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
@@ -35,9 +44,9 @@
           <select class="class-select" id="turmaSelect"></select>
         </div>
         <table>
-          <thead><tr><th>Estudante</th><th>Trilha atual</th><th>Progresso</th><th>Última atividade</th></tr></thead>
+          <thead><tr><th>Estudante</th><th>Trilha atual</th><th>Progresso</th><th>Última atividade</th><th></th></tr></thead>
           <tbody id="estudantesBody">
-            <tr><td colspan="4" class="loading">Carregando…</td></tr>
+            <tr><td colspan="5" class="loading">Carregando…</td></tr>
           </tbody>
         </table>
         <div id="alertBox"></div>
@@ -47,8 +56,23 @@
         <h2 style="font-size:17px;margin-bottom:4px;">Recursos pedagógicos</h2>
         <p class="tag">Sequências didáticas alinhadas à BNCC Computação</p>
         <div id="recursosList"><div class="loading">Carregando…</div></div>
+        <div class="mediation-guide">
+          <h3>Mediação sugerida</h3>
+          <p>Comece perguntando como o estudante pensou a solução. Depois, proponha um teste menor e valorize a revisão do algoritmo.</p>
+        </div>
       </div>
     </div>
+    <section class="panel feedback-composer" id="feedbackComposer" hidden>
+      <div class="section-head">
+        <div><h2 id="feedbackStudent">Feedback individual</h2><p>Visível somente para este estudante.</p></div>
+        <button class="btn btn-ghost" type="button" id="closeFeedback">Fechar</button>
+      </div>
+      <form id="feedbackForm">
+        <label class="sr-only" for="feedbackMessage">Mensagem de feedback</label>
+        <textarea id="feedbackMessage" maxlength="800" required placeholder="Ex.: Você organizou bem os passos. Agora tente explicar por que a repetição ajuda neste desafio."></textarea>
+        <div class="feedback-form-actions"><span class="feedback" id="feedbackStatus" role="status"></span><button class="btn btn-primary" type="submit">Enviar feedback</button></div>
+      </form>
+    </section>
   </div>
 </div>
 

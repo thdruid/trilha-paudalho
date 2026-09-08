@@ -5,6 +5,7 @@ const { execFileSync, spawnSync } = require('node:child_process');
 const bcrypt = require('bcryptjs');
 const { criarApp } = require('../src/server');
 const { readDB, writeDB } = require('../src/db');
+const { gerarToken } = require('../src/auth');
 
 let servidor;
 let baseUrl;
@@ -76,7 +77,7 @@ test('interface expõe os recursos necessários para instalação como PWA', asy
   assert.equal((await manifesto.json()).display, 'standalone');
   const serviceWorker = await fetch(`${origem}/sw.js`);
   assert.equal(serviceWorker.status, 200);
-  assert.match(await serviceWorker.text(), /trilha-paudalho-v1/);
+  assert.match(await serviceWorker.text(), /trilha-paudalho-v5/);
 });
 
 test('rotas exigem o papel correto', async () => {
@@ -123,6 +124,35 @@ test('login limita tentativas repetidas no mesmo endereço', async () => {
   const bloqueada = await requisicao('/auth/login', opcoes);
   assert.equal(bloqueada.status, 429);
   assert.match(bloqueada.corpo.erro, /Muitas tentativas/);
+});
+
+test('feedback é privado entre professor autorizado e aluno destinatário', async () => {
+  const carlos = gerarToken({ id: 6, papel: 'professor', nome: 'Prof. Carlos Andrade' });
+  const envio = await requisicao('/professor/turma/1/estudante/1/feedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${carlos}` },
+    body: JSON.stringify({ mensagem: 'Você avançou bem. Tente explicar a lógica do seu algoritmo.' }),
+  });
+  assert.equal(envio.status, 201);
+
+  const maria = gerarToken({ id: 1, papel: 'aluno', nome: 'Maria Julia Souza' });
+  const feedbacksMaria = await requisicao('/aluno/feedbacks', autenticado(maria));
+  assert.equal(feedbacksMaria.status, 200);
+  assert.equal(feedbacksMaria.corpo.length, 1);
+  assert.match(feedbacksMaria.corpo[0].mensagem, /avançou bem/);
+
+  const pedro = gerarToken({ id: 2, papel: 'aluno', nome: 'Pedro Henrique Oliveira' });
+  const feedbacksPedro = await requisicao('/aluno/feedbacks', autenticado(pedro));
+  assert.equal(feedbacksPedro.status, 200);
+  assert.equal(feedbacksPedro.corpo.length, 0);
+
+  const outraProfessora = gerarToken({ id: 8, papel: 'professor', nome: 'Professora de outra escola' });
+  const tentativaIndevida = await requisicao('/professor/turma/1/estudante/1/feedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${outraProfessora}` },
+    body: JSON.stringify({ mensagem: 'Mensagem indevida.' }),
+  });
+  assert.equal(tentativaIndevida.status, 403);
 });
 
 test('produção exige uma chave JWT forte', () => {

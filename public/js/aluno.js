@@ -6,6 +6,79 @@ if (usuarioLogado) {
   carregarPerfil();
   carregarTrilha();
   carregarConquistas();
+  configurarNavegacaoEstudante();
+  configurarProjetos();
+}
+
+function configurarNavegacaoEstudante() {
+  document.querySelectorAll('.student-tab').forEach((botao) => {
+    botao.addEventListener('click', () => {
+      const painelAtivo = botao.dataset.panel;
+      document.querySelectorAll('.student-tab').forEach((tab) => tab.classList.toggle('active', tab === botao));
+      ['missionsPanel', 'learnPanel', 'projectsPanel', 'feedbackPanel'].forEach((id) => {
+        document.getElementById(id).hidden = id !== painelAtivo;
+      });
+      if (painelAtivo === 'feedbackPanel') carregarFeedbacks();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+
+async function carregarFeedbacks() {
+  const lista = document.getElementById('feedbackList');
+  lista.replaceChildren(Object.assign(document.createElement('div'), { className: 'loading', textContent: 'Carregando feedbacks…' }));
+  try {
+    const feedbacks = await api('/aluno/feedbacks');
+    if (!feedbacks.length) {
+      lista.replaceChildren(Object.assign(document.createElement('div'), { className: 'empty-state', textContent: 'Ainda não há feedbacks individuais para você.' }));
+      return;
+    }
+    lista.replaceChildren(...feedbacks.map((feedback) => {
+      const cartao = document.createElement('article');
+      cartao.className = 'feedback-card';
+      const cabecalho = document.createElement('div');
+      cabecalho.className = 'feedback-card-head';
+      const professor = document.createElement('strong');
+      professor.textContent = feedback.professor;
+      const data = document.createElement('time');
+      data.textContent = new Date(feedback.criado_em).toLocaleDateString('pt-BR');
+      cabecalho.append(professor, data);
+      const mensagem = document.createElement('p');
+      mensagem.textContent = feedback.mensagem;
+      cartao.append(cabecalho, mensagem);
+      return cartao;
+    }));
+  } catch (erro) {
+    lista.replaceChildren(Object.assign(document.createElement('div'), { className: 'empty-state', textContent: erro.message }));
+  }
+}
+
+function configurarProjetos() {
+  const chave = `tp_projeto_rascunho_${usuarioLogado.id}`;
+  const campos = {
+    titulo: document.getElementById('projectTitle'),
+    problema: document.getElementById('projectProblem'),
+    plano: document.getElementById('projectPlan'),
+  };
+  try {
+    const rascunho = JSON.parse(localStorage.getItem(chave) || '{}');
+    campos.titulo.value = rascunho.titulo || '';
+    campos.problema.value = rascunho.problema || '';
+    campos.plano.value = rascunho.plano || '';
+  } catch (_) {
+    localStorage.removeItem(chave);
+  }
+  document.getElementById('projectForm').addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    localStorage.setItem(chave, JSON.stringify({
+      titulo: campos.titulo.value.trim(),
+      problema: campos.problema.value.trim(),
+      plano: campos.plano.value.trim(),
+    }));
+    const feedback = document.getElementById('projectFeedback');
+    feedback.textContent = 'Rascunho salvo neste aparelho.';
+    feedback.className = 'feedback ok';
+  });
 }
 
 async function carregarPerfil() {
@@ -34,28 +107,38 @@ async function carregarPerfil() {
   }
 }
 
-// posições fixas dos 7 nós na trilha (mesma curva do SVG de fundo)
-const posicoes = [
-  { x: 40, y: 160 },
-  { x: 260, y: 150 },
-  { x: 460, y: 150 },
-  { x: 660, y: 150 },
-  { x: 860, y: 150 },
-  { x: 950, y: 70 },
-  { x: 980, y: 70 }, // caso existam mais de 6 missões, cai aqui (ajustado dinamicamente abaixo)
-];
-
 let missoesAtuais = [];
 
 async function carregarTrilha() {
   try {
     missoesAtuais = await api('/aluno/trilha');
     const svg = document.getElementById('trailSvg');
-    // remove nós antigos, mantém o path de fundo
-    svg.querySelectorAll('g.node').forEach((n) => n.remove());
+    const espacamento = 165;
+    const largura = Math.max(760, (missoesAtuais.length - 1) * espacamento + 130);
+    const posicoes = missoesAtuais.map((_, indice) => ({
+      x: 65 + indice * espacamento,
+      y: indice % 2 === 0 ? 150 : 72,
+    }));
+    svg.setAttribute('viewBox', `0 0 ${largura} 220`);
+    svg.replaceChildren();
+
+    const caminho = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = posicoes.reduce((texto, posicao, indice) => {
+      if (indice === 0) return `M${posicao.x},${posicao.y}`;
+      const anterior = posicoes[indice - 1];
+      const meio = (anterior.x + posicao.x) / 2;
+      return `${texto} C${meio},${anterior.y} ${meio},${posicao.y} ${posicao.x},${posicao.y}`;
+    }, '');
+    caminho.setAttribute('d', d);
+    caminho.setAttribute('fill', 'none');
+    caminho.setAttribute('stroke', '#dcded5');
+    caminho.setAttribute('stroke-width', '4');
+    caminho.setAttribute('stroke-dasharray', '1,10');
+    caminho.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(caminho);
 
     missoesAtuais.forEach((m, i) => {
-      const pos = posicoes[i] || { x: 980, y: 70 };
+      const pos = posicoes[i];
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       g.setAttribute('class', 'node ' + statusParaClasse(m.status));
       g.setAttribute('transform', `translate(${pos.x},${pos.y})`);
@@ -107,6 +190,31 @@ let missaoAtual = null;
 let blocosEmbaralhados = []; // [{texto, indiceOriginal}]
 let picked = []; // índices originais escolhidos, na ordem clicada
 
+const cenarios = {
+  1: { personagem: '🐱', alvo: '🍎', classe: 'pomar', titulo: 'Ajude a gata a encontrar a maçã', dica: 'Monte os comandos e veja a gata percorrer o pomar.', inicio: 'A' },
+  2: { personagem: '🐝', alvo: '🌼', classe: 'jardim', titulo: 'A abelha precisa visitar as flores', dica: 'Use a repetição para economizar comandos no jardim.', inicio: 'Ninho' },
+  3: { personagem: '🐸', alvo: '🪷', classe: 'lago', titulo: 'Atravesse o lago com a rã', dica: 'Escolha a decisão certa antes de avançar.', inicio: 'Margem' },
+};
+
+function ordemPedagogica(missao = missaoAtual) {
+  const ordem = Number(missao?.ordem);
+  if (Number.isInteger(ordem) && ordem > 0) return ordem;
+  const porTitulo = {
+    'sequência': 1,
+    'repetição': 2,
+    'condicional': 3,
+    'variáveis': 4,
+    'funções': 5,
+    'depuração': 6,
+    'projeto final': 7,
+  };
+  return porTitulo[String(missao?.titulo || '').trim().toLowerCase()] || 99;
+}
+
+function modoDaMissao() {
+  return ordemPedagogica() <= 3 ? 'visual' : 'codigo';
+}
+
 async function abrirMissao(id) {
   try {
     missaoAtual = await api(`/aluno/missao/${id}`);
@@ -117,7 +225,17 @@ async function abrirMissao(id) {
     document.getElementById('modalDesc').textContent = missaoAtual.enunciado;
     document.getElementById('modalFeedback').textContent = '';
     document.getElementById('modalFeedback').className = 'feedback';
-    renderBlocos();
+    const desafioVisual = modoDaMissao() === 'visual';
+    document.getElementById('challengeLab').hidden = !desafioVisual;
+    document.getElementById('codeLab').hidden = desafioVisual;
+    document.getElementById('runProgram').disabled = true;
+    if (desafioVisual) {
+      configurarCenario();
+      reiniciarCenario();
+      renderBlocos();
+    } else {
+      prepararEditor();
+    }
     document.getElementById('overlay').classList.add('active');
   } catch (err) {
     alert(err.message);
@@ -137,10 +255,100 @@ function renderBlocos() {
       if (picked.includes(idx)) return;
       picked.push(idx);
       renderBlocos();
-      if (picked.length === blocosEmbaralhados.length) enviarTentativa();
     });
     wrap.appendChild(b);
   });
+  if (modoDaMissao() === 'visual') {
+    document.getElementById('runProgram').disabled = picked.length !== blocosEmbaralhados.length;
+  }
+}
+
+function configurarCenario() {
+  const ordem = ordemPedagogica();
+  const cenario = cenarios[ordem];
+  const tabuleiro = document.getElementById('gameBoard');
+  tabuleiro.className = `game-board ${cenario.classe}`;
+  document.getElementById('gameBot').textContent = cenario.personagem;
+  const alvo = document.getElementById('gameTarget');
+  alvo.textContent = cenario.alvo;
+  alvo.style.left = ordem === 1 ? '64px' : '126px';
+  document.getElementById('gameStart').textContent = cenario.inicio;
+  document.getElementById('labTitle').textContent = cenario.titulo;
+  document.getElementById('labHint').textContent = cenario.dica;
+}
+
+function prepararEditor() {
+  const bandeja = document.getElementById('snippetTray');
+  const editor = document.getElementById('codeEditor');
+  const titulos = {
+    4: '8º ano · dados e variáveis',
+    5: '8º ano · funções reutilizáveis',
+    6: '9º ano · encontre e corrija o erro',
+    7: '9º ano · organize um pequeno projeto',
+  };
+  document.querySelector('.code-lab-head span').textContent = titulos[ordemPedagogica()] || 'Editor de código guiado';
+  editor.value = '';
+  bandeja.replaceChildren();
+  blocosEmbaralhados.forEach(({ texto }) => {
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'snippet-btn';
+    botao.textContent = `+ ${texto}`;
+    botao.addEventListener('click', () => {
+      editor.value += `${editor.value && !editor.value.endsWith('\n') ? '\n' : ''}${texto}\n`;
+      editor.focus();
+    });
+    bandeja.appendChild(botao);
+  });
+}
+
+function reiniciarCenario() {
+  const robo = document.getElementById('gameBot');
+  robo.style.transform = 'translate(0, 0) rotate(0deg)';
+}
+
+function esperar(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function executarCenario() {
+  const botao = document.getElementById('runProgram');
+  if (botao.disabled) return;
+  botao.disabled = true;
+  reiniciarCenario();
+  const robo = document.getElementById('gameBot');
+  for (let passo = 0; passo < picked.length; passo += 1) {
+    const indice = picked[passo];
+    const comando = missaoAtual.blocos[indice];
+    const x = ordemPedagogica() === 1 ? 62 : Math.min(passo + 1, 2) * 62;
+    const y = passo === picked.length - 1 ? 62 : 0;
+    const direcao = comando.startsWith('virar') ? 90 : 0;
+    robo.style.transform = `translate(${x}px, ${y}px) rotate(${direcao}deg)`;
+    await esperar(650);
+  }
+  await enviarTentativa();
+  botao.disabled = false;
+}
+
+function ordemDoEditor() {
+  const normalizar = (texto) => texto.trim().replace(/\s+/g, ' ');
+  const linhas = document.getElementById('codeEditor').value.split('\n').map(normalizar).filter(Boolean);
+  if (linhas.length !== missaoAtual.blocos.length) return null;
+  const ordem = linhas.map((linha) => missaoAtual.blocos.findIndex((bloco) => normalizar(bloco) === linha));
+  if (ordem.some((indice) => indice < 0) || new Set(ordem).size !== ordem.length) return null;
+  return ordem;
+}
+
+async function executarCodigo() {
+  const ordem = ordemDoEditor();
+  const feedback = document.getElementById('modalFeedback');
+  if (!ordem) {
+    feedback.textContent = 'Use cada trecho uma vez, em linhas separadas.';
+    feedback.className = 'feedback err';
+    return;
+  }
+  picked = ordem;
+  await enviarTentativa();
 }
 
 async function enviarTentativa() {
@@ -172,9 +380,13 @@ async function enviarTentativa() {
 
 document.getElementById('resetModal').addEventListener('click', () => {
   picked = [];
-  renderBlocos();
+  if (modoDaMissao() === 'visual') renderBlocos();
+  else prepararEditor();
+  reiniciarCenario();
   document.getElementById('modalFeedback').textContent = '';
 });
+document.getElementById('runProgram').addEventListener('click', executarCenario);
+document.getElementById('runCode').addEventListener('click', executarCodigo);
 document.getElementById('closeModal').addEventListener('click', () => {
   document.getElementById('overlay').classList.remove('active');
 });
