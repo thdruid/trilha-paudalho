@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+process.env.DB_DRIVER = 'json';
 const { writeDB } = require('./db');
 
 const hash = (senha) => bcrypt.hashSync(senha, 8);

@@ -6,8 +6,8 @@ const router = express.Router();
 router.use(exigirAuth(['gestor']));
 
 // GET /api/gestao/kpis — indicadores agregados calculados a partir dos dados reais da base
-router.get('/kpis', (req, res) => {
-  const db = readDB();
+router.get('/kpis', async (req, res) => {
+  const db = await readDB();
   const alunos = db.usuarios.filter((u) => u.papel === 'aluno');
   const totalMissoes = db.missoes.length;
 
@@ -32,8 +32,8 @@ router.get('/kpis', (req, res) => {
 });
 
 // GET /api/gestao/escolas — participação (% médio de conclusão) por escola
-router.get('/escolas', (req, res) => {
-  const db = readDB();
+router.get('/escolas', async (req, res) => {
+  const db = await readDB();
   const totalMissoes = db.missoes.length;
 
   const dados = db.escolas.map((escola) => {
@@ -53,8 +53,8 @@ router.get('/escolas', (req, res) => {
 });
 
 // GET /api/gestao/series — indicadores agregados por série (6º ao 9º ano)
-router.get('/series', (req, res) => {
-  const db = readDB();
+router.get('/series', async (req, res) => {
+  const db = await readDB();
   const totalMissoes = db.missoes.length;
   const series = [6, 7, 8, 9];
 

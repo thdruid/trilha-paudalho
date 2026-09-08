@@ -12,8 +12,8 @@ function diasDesde(isoString) {
 }
 
 // GET /api/professor/turmas — turmas do professor logado
-router.get('/turmas', (req, res) => {
-  const db = readDB();
+router.get('/turmas', async (req, res) => {
+  const db = await readDB();
   const professor = db.usuarios.find((u) => u.id === req.usuario.id);
   const turmas = db.turmas
     .filter((t) => (professor.turmas_ids || []).includes(t.id))
@@ -25,8 +25,8 @@ router.get('/turmas', (req, res) => {
 });
 
 // GET /api/professor/turma/:id/estudantes — progresso de cada estudante da turma
-router.get('/turma/:id/estudantes', (req, res) => {
-  const db = readDB();
+router.get('/turma/:id/estudantes', async (req, res) => {
+  const db = await readDB();
   const turmaId = Number(req.params.id);
   const professor = db.usuarios.find((u) => u.id === req.usuario.id);
 

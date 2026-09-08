@@ -17,8 +17,8 @@ function calcularXp(db, usuarioId) {
 }
 
 // GET /api/aluno/me — perfil + turma + escola + xp/nível/streak
-router.get('/me', (req, res) => {
-  const db = readDB();
+router.get('/me', async (req, res) => {
+  const db = await readDB();
   const usuario = db.usuarios.find((u) => u.id === req.usuario.id);
   const turma = db.turmas.find((t) => t.id === usuario.turma_id);
   const escola = turma ? db.escolas.find((e) => e.id === turma.escola_id) : null;
@@ -37,8 +37,8 @@ router.get('/me', (req, res) => {
 });
 
 // GET /api/aluno/trilha — lista de missões com status para o aluno logado
-router.get('/trilha', (req, res) => {
-  const db = readDB();
+router.get('/trilha', async (req, res) => {
+  const db = await readDB();
   const missoesComStatus = db.missoes
     .slice()
     .sort((a, b) => a.ordem - b.ordem)
@@ -56,8 +56,8 @@ router.get('/trilha', (req, res) => {
 });
 
 // GET /api/aluno/missao/:id — detalhe do desafio (blocos embaralhados)
-router.get('/missao/:id', (req, res) => {
-  const db = readDB();
+router.get('/missao/:id', async (req, res) => {
+  const db = await readDB();
   const missao = db.missoes.find((m) => m.id === Number(req.params.id));
   if (!missao) return res.status(404).json({ erro: 'Missão não encontrada.' });
 
@@ -79,8 +79,8 @@ router.get('/missao/:id', (req, res) => {
 
 // POST /api/aluno/missao/:id/tentativa  { ordem: [0,2,1,...] }
 // Valida a ordem enviada pelo aluno contra o gabarito da missão.
-router.post('/missao/:id/tentativa', (req, res) => {
-  const db = readDB();
+router.post('/missao/:id/tentativa', async (req, res) => {
+  const db = await readDB();
   const missaoId = Number(req.params.id);
   const missao = db.missoes.find((m) => m.id === missaoId);
   if (!missao) return res.status(404).json({ erro: 'Missão não encontrada.' });
@@ -137,7 +137,7 @@ router.post('/missao/:id/tentativa', (req, res) => {
     }
   }
 
-  writeDB(db);
+  await writeDB(db);
 
   res.json({
     correto,
@@ -149,8 +149,8 @@ router.post('/missao/:id/tentativa', (req, res) => {
 });
 
 // GET /api/aluno/conquistas
-router.get('/conquistas', (req, res) => {
-  const db = readDB();
+router.get('/conquistas', async (req, res) => {
+  const db = await readDB();
   const obtidas = db.usuario_conquistas
     .filter((uc) => uc.usuario_id === req.usuario.id)
     .map((uc) => uc.conquista_id);

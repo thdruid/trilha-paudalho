@@ -10,6 +10,11 @@ const path = require('path');
 
 const DB_PATH = path.join(__dirname, '..', 'data', 'db.json');
 
+if (process.env.DATABASE_URL && process.env.DB_DRIVER !== 'json') {
+  module.exports = require('./db-postgres');
+  return;
+}
+
 function readDB() {
   if (!fs.existsSync(DB_PATH)) {
     throw new Error('Banco de dados não encontrado. Rode "npm run seed" primeiro.');

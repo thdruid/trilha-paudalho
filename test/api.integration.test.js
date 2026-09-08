@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+process.env.DB_DRIVER = 'json';
 const { before, after, test } = require('node:test');
 const { execFileSync, spawnSync } = require('node:child_process');
 const bcrypt = require('bcryptjs');
