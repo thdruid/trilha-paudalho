@@ -134,11 +134,12 @@ async function carregarTrilha() {
   try {
     missoesAtuais = await api('/aluno/trilha');
     const svg = document.getElementById('trailSvg');
-    const espacamento = 165;
-    const largura = Math.max(760, (missoesAtuais.length - 1) * espacamento + 130);
+    const compacto = window.matchMedia('(max-width: 760px)').matches;
+    const espacamento = compacto ? 49 : 165;
+    const largura = compacto ? 360 : Math.max(760, (missoesAtuais.length - 1) * espacamento + 130);
     const posicoes = missoesAtuais.map((_, indice) => ({
-      x: 65 + indice * espacamento,
-      y: indice % 2 === 0 ? 150 : 72,
+      x: (compacto ? 34 : 65) + indice * espacamento,
+      y: indice % 2 === 0 ? (compacto ? 142 : 150) : (compacto ? 78 : 72),
     }));
     svg.setAttribute('viewBox', `0 0 ${largura} 220`);
     svg.replaceChildren();
@@ -254,6 +255,7 @@ async function abrirMissao(id) {
 
     document.getElementById('modalTitle').textContent = `Missão: ${missaoAtual.titulo}`;
     document.getElementById('modalDesc').textContent = missaoAtual.enunciado;
+    renderizarMetaMissao();
     document.getElementById('modalFeedback').textContent = '';
     document.getElementById('modalFeedback').className = 'feedback';
     const desafioVisual = modoDaMissao() === 'visual';
@@ -292,6 +294,17 @@ function renderBlocos() {
   if (modoDaMissao() === 'visual') {
     document.getElementById('runProgram').disabled = picked.length !== blocosEmbaralhados.length;
   }
+}
+
+function renderizarMetaMissao() {
+  const ordem = ordemPedagogica();
+  const faixa = ordem <= 2 ? '6º–7º ano' : ordem <= 5 ? '8º ano' : '9º ano';
+  const dificuldade = ordem <= 2 ? 'Começando' : ordem <= 5 ? 'Em evolução' : 'Desafio avançado';
+  const objetivo = ordem <= 2 ? 'Organizar comandos' : ordem === 3 ? 'Tomar uma decisão' : ordem <= 5 ? 'Criar com código' : 'Resolver um problema';
+  const meta = document.getElementById('missionMeta');
+  meta.replaceChildren(...[`${faixa}`, dificuldade, `${missaoAtual.xp} XP · ${objetivo}`].map((texto) => {
+    const item = document.createElement('span'); item.textContent = texto; return item;
+  }));
 }
 
 function configurarCenario() {
@@ -404,6 +417,7 @@ async function enviarTentativa() {
       carregarPerfil();
       carregarTrilha();
       carregarConquistas();
+      mostrarCelebracao(resultado);
     } else {
       fb.textContent = '✗ Ordem incorreta — tente de novo';
       fb.className = 'feedback err';
@@ -412,6 +426,17 @@ async function enviarTentativa() {
     fb.textContent = err.message;
     fb.className = 'feedback err';
   }
+}
+
+function mostrarCelebracao(resultado) {
+  const conquistas = resultado.novas_conquistas || [];
+  document.getElementById('celebrationXp').textContent = `+${resultado.xp_ganho} XP`;
+  document.getElementById('celebrationDetail').textContent = conquistas.length
+    ? `Conquista desbloqueada: ${conquistas.map((c) => c.titulo).join(', ')}.`
+    : 'Você avançou na sua jornada. Continue assim!';
+  const celebracao = document.getElementById('celebration');
+  celebracao.classList.add('active');
+  celebracao.setAttribute('aria-hidden', 'false');
 }
 
 document.getElementById('resetModal').addEventListener('click', () => {
@@ -425,6 +450,11 @@ document.getElementById('runProgram').addEventListener('click', executarCenario)
 document.getElementById('runCode').addEventListener('click', executarCodigo);
 document.getElementById('closeModal').addEventListener('click', () => {
   document.getElementById('overlay').classList.remove('active');
+});
+document.getElementById('closeCelebration').addEventListener('click', () => {
+  const celebracao = document.getElementById('celebration');
+  celebracao.classList.remove('active');
+  celebracao.setAttribute('aria-hidden', 'true');
 });
 document.getElementById('overlay').addEventListener('click', (e) => {
   if (e.target.id === 'overlay') document.getElementById('overlay').classList.remove('active');

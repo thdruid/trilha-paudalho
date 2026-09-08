@@ -15,7 +15,7 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <span class="brand-mark">TP</span>
+      <span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span>
       <h1>Trilha Paudalho</h1>
       <span>ambiente do estudante</span>
       <div class="brand-right">
@@ -43,8 +43,8 @@
     <div class="avatar-picker" aria-label="Escolha seu avatar"><span>Meu avatar:</span><div id="avatarChoices"></div></div>
 
     <div class="section-head">
-      <h2>Trilha: Algoritmos e Programação</h2>
-      <p>Toque em uma missão para abrir o desafio</p>
+      <div><span class="learn-kicker">Jornada de algoritmos</span><h2>Minha trilha</h2></div>
+      <p>Complete uma missão para liberar a próxima</p>
     </div>
 
     <div class="trail-card">
@@ -68,7 +68,7 @@
           <h2 id="learnTitle">Entenda antes de resolver</h2>
           <p>Use estes exemplos curtos para descobrir como cada comando funciona. A linguagem aqui é pseudocódigo: simples de ler, sem exigir decorar uma linguagem profissional.</p>
         </div>
-        <span class="learn-illustration" aria-hidden="true">💡</span>
+        <span class="scene-illustration learn-scene" aria-hidden="true"><i></i><b></b><em></em></span>
       </div>
 
       <div class="learn-grid">
@@ -112,16 +112,17 @@
           <h2 id="projectsTitle">Transforme uma ideia em solução</h2>
           <p>Use programação para observar um problema da escola ou do bairro, imaginar uma solução e planejar os primeiros passos.</p>
         </div>
-        <span class="learn-illustration" aria-hidden="true">🚀</span>
+        <span class="scene-illustration project-scene" aria-hidden="true"><i></i><b></b><em></em></span>
       </div>
       <div class="project-layout">
         <form class="project-form" id="projectForm">
           <label for="projectTitle">Nome do projeto</label>
           <input id="projectTitle" maxlength="70" placeholder="Ex.: Mapa de pontos de coleta">
-          <label for="projectProblem">Qual problema você quer resolver?</label>
+          <div class="project-steps" aria-label="Etapas do projeto"><span class="active">1. Problema</span><span>2. Público</span><span>3. Solução</span><span>4. Algoritmo</span><span>5. Teste</span><span>6. Apresentação</span></div>
+          <label for="projectProblem">1. Qual problema você quer resolver?</label>
           <textarea id="projectProblem" maxlength="500" placeholder="Conte o que acontece e para quem isso é importante."></textarea>
-          <label for="projectPlan">Primeiro passo do algoritmo</label>
-          <textarea id="projectPlan" maxlength="500" placeholder="Ex.: perguntar o bairro e mostrar os pontos mais próximos."></textarea>
+          <label for="projectPlan">2. Sua solução e o primeiro passo do algoritmo</label>
+          <textarea id="projectPlan" maxlength="500" placeholder="Ex.: ajudar estudantes a encontrar pontos de coleta; primeiro perguntar o bairro e mostrar os pontos mais próximos."></textarea>
           <p class="tag">Salve como rascunho e envie ao professor quando estiver pronto.</p>
           <button class="btn btn-primary" type="submit">Salvar projeto</button>
           <span class="feedback" id="projectFeedback" role="status"></span>
@@ -147,11 +148,11 @@
           <h2 id="feedbackTitle">Feedbacks para você</h2>
           <p>Este é um espaço privado: somente você pode acessar esta tela e ler os feedbacks destinados ao seu percurso.</p>
         </div>
-        <span class="learn-illustration" aria-hidden="true">💬</span>
+        <span class="scene-illustration feedback-scene" aria-hidden="true"><i></i><b></b><em></em></span>
       </div>
       <div class="feedback-list" id="feedbackList"><div class="loading">Carregando feedbacks…</div></div>
     </section>
-    <section id="rallyPanel" hidden aria-labelledby="rallyTitle"><div class="learn-hero"><div><span class="learn-kicker">Desafio coletivo</span><h2 id="rallyTitle">Ralis e hackathons</h2><p>Participe de desafios de programação e apresente uma solução para problemas reais.</p></div><span class="learn-illustration">🏁</span></div><div class="feedback-list" id="rallyList"><div class="loading">Carregando ralis…</div></div></section>
+    <section id="rallyPanel" hidden aria-labelledby="rallyTitle"><div class="learn-hero"><div><span class="learn-kicker">Desafio coletivo</span><h2 id="rallyTitle">Ralis e hackathons</h2><p>Participe de desafios de programação e apresente uma solução para problemas reais.</p></div><span class="scene-illustration rally-scene" aria-hidden="true"><i></i><b></b><em></em></span></div><div class="feedback-list" id="rallyList"><div class="loading">Carregando ralis…</div></div></section>
 
   </div>
 </div>
@@ -160,6 +161,7 @@
   <div class="modal">
     <h3 id="modalTitle">Missão</h3>
     <p class="desc" id="modalDesc"></p>
+    <div class="mission-meta" id="missionMeta"></div>
     <div class="challenge-lab" id="challengeLab" hidden>
       <div class="lab-copy">
         <span class="lab-kicker">Laboratório de código</span>
@@ -193,6 +195,8 @@
     </div>
   </div>
 </div>
+
+<div class="celebration" id="celebration" aria-live="polite" aria-hidden="true"><div class="celebration-card"><span class="celebration-star">✦</span><p>Missão concluída</p><strong id="celebrationXp">+0 XP</strong><small id="celebrationDetail">Uma nova etapa foi liberada.</small><button class="btn btn-primary" type="button" id="closeCelebration">Continuar</button></div></div>
 
 <script src="/js/api.js"></script>
 <script src="/js/aluno.js"></script>

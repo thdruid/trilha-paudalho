@@ -2,5 +2,6 @@
   <rect width="512" height="512" rx="104" fill="#101b30"/>
   <path d="M111 318c52-111 99-111 144 0 45-111 92-111 146 0" fill="none" stroke="#12867a" stroke-linecap="round" stroke-width="44"/>
   <circle cx="111" cy="318" r="30" fill="#e85d3f"/><circle cx="401" cy="318" r="30" fill="#e85d3f"/>
-  <text x="256" y="186" fill="#fff" font-family="Arial, sans-serif" font-size="112" font-weight="700" text-anchor="middle">TP</text>
+  <path d="M156 180h200" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="180" cy="180" r="18" fill="#e85d3f"/><circle cx="256" cy="180" r="18" fill="#c99a3d"/><circle cx="332" cy="180" r="18" fill="#12867a"/>
 </svg>
