@@ -1,5 +1,9 @@
 # Trilha Paudalho
 
+> Nota de segurança: o JWT permanece em `localStorage` neste MVP para manter o
+> front-end estático simples. Para produção, migrar para cookie `HttpOnly`,
+> `Secure` e `SameSite`, acompanhado de proteção CSRF.
+
 Plataforma gamificada de aprendizagem de Algoritmos e Programação (BNCC Computação)
 para os Anos Finais do Ensino Fundamental — protótipo funcional desenvolvido em
 resposta ao Desafio de Transformação Digital da Prefeitura Municipal de Paudalho/PE.
@@ -18,6 +22,7 @@ Pré-requisito: [Node.js](https://nodejs.org) versão 18 ou superior.
 npm install       # instala as dependências
 npm run seed      # cria o banco de dados com dados de demonstração
 npm start         # sobe o servidor em http://localhost:4000
+npm test          # executa os testes de integração
 ```
 
 Abra **http://localhost:4000** no navegador. A tela de login tem botões de

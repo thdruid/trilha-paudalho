@@ -11,14 +11,17 @@ if (usuarioLogado) {
 async function carregarPerfil() {
   try {
     const p = await api('/aluno/me');
+    p.nome = escaparHtml(p.nome);
+    p.turma = escaparHtml(p.turma);
+    p.escola = escaparHtml(p.escola);
     const el = document.getElementById('profileRow');
     const iniciais = p.nome.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
     const xpNoNivelPct = p.xpNoNivel; // já é 0-99 (xp % 100)
     el.innerHTML = `
-      <div class="avatar">${iniciais}</div>
+        <div class="avatar">${escaparHtml(iniciais)}</div>
       <div class="profile-info">
         <div class="name">${p.nome} — ${p.turma || ''}</div>
-        <div class="school">${p.escola || ''}</div>
+        <div class="school">${escaparHtml(p.escola)}</div>
       </div>
       <div class="xp-wrap">
         <div class="xp-label"><span>Nível ${p.nivel}</span><span>${p.xp} XP total</span></div>
@@ -27,7 +30,7 @@ async function carregarPerfil() {
       <div class="streak">🔥 ${p.streak} dias seguidos</div>
     `;
   } catch (err) {
-    document.getElementById('profileRow').innerHTML = `<div class="loading">${err.message}</div>`;
+    document.getElementById('profileRow').innerHTML = `<div class="loading">${escaparHtml(err.message)}</div>`;
   }
 }
 
@@ -61,7 +64,7 @@ async function carregarTrilha() {
       g.innerHTML = `
         <circle class="ring" r="22" stroke="${cor}"/>
         <text class="num" x="0" y="5" text-anchor="middle">${numero}</text>
-        <text class="label" x="0" y="42" text-anchor="middle">${m.titulo}</text>
+        <text class="label" x="0" y="42" text-anchor="middle">${escaparHtml(m.titulo)}</text>
       `;
       if (m.status !== 'bloqueada') {
         g.addEventListener('click', () => abrirMissao(m.id));
@@ -87,7 +90,7 @@ async function carregarConquistas() {
     conquistas.forEach((c) => {
       const el = document.createElement('div');
       el.className = 'badge' + (c.obtida ? '' : ' locked');
-      el.innerHTML = `<div class="badge-icon">${c.icone}</div><div class="badge-title">${c.titulo}</div>`;
+      el.innerHTML = `<div class="badge-icon">${escaparHtml(c.icone)}</div><div class="badge-title">${escaparHtml(c.titulo)}</div>`;
       grid.appendChild(el);
     });
     const obtidas = conquistas.filter((c) => c.obtida).length;

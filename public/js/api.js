@@ -1,5 +1,16 @@
 const API_BASE = '/api';
 
+// Use this when a server-provided value needs to be rendered inside innerHTML.
+function escaparHtml(valor) {
+  return String(valor ?? '').replace(/[&<>'"]/g, (caractere) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+  }[caractere]));
+}
+
+function paginaDoPapel(papel) {
+  return papel === 'gestor' ? 'gestao.html' : `${papel}.html`;
+}
+
 const Sessao = {
   salvar(token, usuario) {
     localStorage.setItem('tp_token', token);
@@ -25,7 +36,7 @@ const Sessao = {
     }
     if (u.papel !== papel) {
       // manda para a home correta do papel do usuário
-      window.location.href = `/${u.papel}.html`;
+      window.location.href = `/${paginaDoPapel(u.papel)}`;
       return null;
     }
     return u;

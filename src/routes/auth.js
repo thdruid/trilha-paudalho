@@ -1,11 +1,20 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
 const { readDB } = require('../db');
 const { gerarToken } = require('../auth');
 
 const router = express.Router();
 
-router.post('/login', (req, res) => {
+const limiteLogin = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { erro: 'Muitas tentativas de login. Tente novamente em alguns minutos.' },
+});
+
+router.post('/login', limiteLogin, (req, res) => {
   const { email, senha } = req.body;
   if (!email || !senha) {
     return res.status(400).json({ erro: 'Informe e-mail e senha.' });

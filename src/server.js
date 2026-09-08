@@ -8,22 +8,29 @@ const alunoRoutes = require('./routes/aluno');
 const professorRoutes = require('./routes/professor');
 const gestaoRoutes = require('./routes/gestao');
 
-const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
-app.use(express.json());
+function criarApp() {
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/aluno', alunoRoutes);
-app.use('/api/professor', professorRoutes);
-app.use('/api/gestao', gestaoRoutes);
+  app.use('/api/auth', authRoutes);
+  app.use('/api/aluno', alunoRoutes);
+  app.use('/api/professor', professorRoutes);
+  app.use('/api/gestao', gestaoRoutes);
 
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+  app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 // front-end estático (login.html, aluno.html, professor.html, gestao.html)
-app.use(express.static(path.join(__dirname, '..', 'public')));
+  app.use(express.static(path.join(__dirname, '..', 'public')));
+  return app;
+}
 
-app.listen(PORT, () => {
-  console.log(`Trilha Paudalho rodando em http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  criarApp().listen(PORT, () => {
+    console.log(`Trilha Paudalho rodando em http://localhost:${PORT}`);
+  });
+}
+
+module.exports = { criarApp };

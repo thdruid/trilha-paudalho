@@ -53,7 +53,7 @@
           body: JSON.stringify({ email, senha }),
         });
         Sessao.salvar(data.token, data.usuario);
-        window.location.href = `/${data.usuario.papel}.html`;
+        window.location.href = `/${data.usuario.papel === 'gestor' ? 'gestao' : data.usuario.papel}.html`;
       } catch (err) {
         errorEl.textContent = err.message;
       }
@@ -61,7 +61,8 @@
 
     // se já estiver logado, manda direto
     if (Sessao.token() && Sessao.usuario()) {
-      window.location.href = `/${Sessao.usuario().papel}.html`;
+      const papel = Sessao.usuario().papel;
+      window.location.href = `/${papel === 'gestor' ? 'gestao' : papel}.html`;
     }
   </script>
 </body>

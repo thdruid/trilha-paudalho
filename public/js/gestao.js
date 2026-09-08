@@ -8,43 +8,83 @@ if (usuarioLogado) {
   carregarSeries();
 }
 
+function numero(valor, limite = Infinity) {
+  return Math.max(0, Math.min(limite, Number(valor) || 0));
+}
+
+function erro(elemento, mensagem, colspan = null) {
+  elemento.replaceChildren();
+  const linha = colspan ? document.createElement('tr') : document.createElement('div');
+  const destino = colspan ? document.createElement('td') : linha;
+  destino.className = 'loading';
+  destino.textContent = mensagem;
+  if (colspan) {
+    destino.colSpan = colspan;
+    linha.appendChild(destino);
+  }
+  elemento.appendChild(linha);
+}
+
+function criarDiv(classe, texto) {
+  const div = document.createElement('div');
+  div.className = classe;
+  div.textContent = texto;
+  return div;
+}
+
 async function carregarKpis() {
+  const linha = document.getElementById('kpiRow');
   try {
     const k = await api('/gestao/kpis');
-    document.getElementById('kpiRow').innerHTML = `
-      <div class="kpi"><div class="num">${k.estudantes_ativos}</div><div class="lbl">estudantes ativos</div></div>
-      <div class="kpi"><div class="num">${k.escolas_participantes}</div><div class="lbl">escolas participantes</div><div class="delta">de ${k.escolas_na_rede} na rede</div></div>
-      <div class="kpi"><div class="num">${k.taxa_media_conclusao}%</div><div class="lbl">taxa média de conclusão</div></div>
-      <div class="kpi"><div class="num">${k.missoes_concluidas}</div><div class="lbl">missões concluídas</div></div>
-    `;
+    const itens = [
+      [numero(k.estudantes_ativos), 'estudantes ativos'],
+      [numero(k.escolas_participantes), 'escolas participantes', `de ${numero(k.escolas_na_rede)} na rede`],
+      [`${numero(k.taxa_media_conclusao, 100)}%`, 'taxa média de conclusão'],
+      [numero(k.missoes_concluidas), 'missões concluídas'],
+    ];
+    linha.replaceChildren(...itens.map(([valor, rotulo, detalhe]) => {
+      const card = criarDiv('kpi', '');
+      card.append(criarDiv('num', valor), criarDiv('lbl', rotulo));
+      if (detalhe) card.appendChild(criarDiv('delta', detalhe));
+      return card;
+    }));
   } catch (err) {
-    document.getElementById('kpiRow').innerHTML = `<div class="loading">${err.message}</div>`;
+    erro(linha, err.message);
   }
 }
 
 async function carregarEscolas() {
+  const area = document.getElementById('barsEscolas');
   try {
     const escolas = await api('/gestao/escolas');
-    const max = Math.max(...escolas.map((e) => e.participacao_pct), 1);
-    document.getElementById('barsEscolas').innerHTML = escolas.map((e) => `
-      <div class="bar-col">
-        <div class="bar-val">${e.participacao_pct}%</div>
-        <div class="bar" style="height:${Math.max((e.participacao_pct / max) * 100, 4)}%"></div>
-        <div class="bar-lbl">${e.escola.replace('E.M. ', '')}</div>
-      </div>
-    `).join('');
+    const max = Math.max(...escolas.map((e) => numero(e.participacao_pct, 100)), 1);
+    area.replaceChildren(...escolas.map((escola) => {
+      const percentual = numero(escola.participacao_pct, 100);
+      const coluna = criarDiv('bar-col', '');
+      const barra = criarDiv('bar', '');
+      barra.style.height = `${Math.max((percentual / max) * 100, 4)}%`;
+      coluna.append(criarDiv('bar-val', `${percentual}%`), barra, criarDiv('bar-lbl', String(escola.escola || '').replace('E.M. ', '')));
+      return coluna;
+    }));
   } catch (err) {
-    document.getElementById('barsEscolas').innerHTML = `<div class="loading">${err.message}</div>`;
+    erro(area, err.message);
   }
 }
 
 async function carregarSeries() {
+  const corpo = document.getElementById('seriesBody');
   try {
     const series = await api('/gestao/series');
-    document.getElementById('seriesBody').innerHTML = series.map((s) => `
-      <tr><td>${s.serie}</td><td>${s.estudantes}</td><td>${s.conclusao_pct}%</td></tr>
-    `).join('');
+    corpo.replaceChildren(...series.map((serie) => {
+      const linha = document.createElement('tr');
+      [serie.serie, numero(serie.estudantes), `${numero(serie.conclusao_pct, 100)}%`].forEach((valor) => {
+        const celula = document.createElement('td');
+        celula.textContent = valor;
+        linha.appendChild(celula);
+      });
+      return linha;
+    }));
   } catch (err) {
-    document.getElementById('seriesBody').innerHTML = `<tr><td colspan="3" class="loading">${err.message}</td></tr>`;
+    erro(corpo, err.message, 3);
   }
 }

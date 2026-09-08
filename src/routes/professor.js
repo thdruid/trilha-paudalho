@@ -28,6 +28,12 @@ router.get('/turmas', (req, res) => {
 router.get('/turma/:id/estudantes', (req, res) => {
   const db = readDB();
   const turmaId = Number(req.params.id);
+  const professor = db.usuarios.find((u) => u.id === req.usuario.id);
+
+  if (!Number.isInteger(turmaId) || !professor || !(professor.turmas_ids || []).includes(turmaId)) {
+    return res.status(403).json({ erro: 'Sem permissÃ£o para acessar esta turma.' });
+  }
+
   const totalMissoes = db.missoes.length;
 
   const estudantes = db.usuarios

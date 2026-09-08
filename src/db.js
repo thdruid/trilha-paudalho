@@ -19,7 +19,16 @@ function readDB() {
 }
 
 function writeDB(data) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  // The rename only happens after the whole JSON document has been written.
+  // Synchronous route handlers serialize read-modify-write in one Node process;
+  // multi-process deployments still require a proper database.
+  const tempPath = `${DB_PATH}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tempPath, DB_PATH);
+  } finally {
+    if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+  }
 }
 
 // Gera IDs incrementais simples e estáveis por coleção.
