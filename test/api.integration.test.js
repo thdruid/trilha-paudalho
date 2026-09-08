@@ -67,6 +67,16 @@ test('API envia cabeçalhos básicos de segurança', async () => {
   assert.match(resposta.headers.get('content-security-policy'), /default-src 'self'/);
 });
 
+test('interface expõe os recursos necessários para instalação como PWA', async () => {
+  const origem = baseUrl.replace('/api', '');
+  const manifesto = await fetch(`${origem}/manifest.webmanifest`);
+  assert.equal(manifesto.status, 200);
+  assert.equal((await manifesto.json()).display, 'standalone');
+  const serviceWorker = await fetch(`${origem}/sw.js`);
+  assert.equal(serviceWorker.status, 200);
+  assert.match(await serviceWorker.text(), /trilha-paudalho-v1/);
+});
+
 test('rotas exigem o papel correto', async () => {
   const aluno = await login('mariajulia@aluno.paudalho.pe.gov.br');
   assert.equal((await requisicao('/professor/turmas', autenticado(aluno))).status, 403);

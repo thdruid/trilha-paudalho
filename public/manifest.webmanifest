@@ -1,0 +1,11 @@
+{
+  "name": "Trilha Paudalho",
+  "short_name": "Trilha",
+  "description": "Aprendizagem gamificada de Algoritmos e Programação.",
+  "lang": "pt-BR",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#eef1ec",
+  "theme_color": "#101b30",
+  "icons": [{ "src": "/icons/trilha-paudalho.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

@@ -1,5 +1,11 @@
 const API_BASE = '/api';
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((erro) => console.warn('Não foi possível ativar o modo offline.', erro));
+  });
+}
+
 // Use this when a server-provided value needs to be rendered inside innerHTML.
 function escaparHtml(valor) {
   return String(valor ?? '').replace(/[&<>'"]/g, (caractere) => ({

@@ -1,5 +1,9 @@
 # Trilha Paudalho
 
+O projeto também pode ser instalado como aplicativo web (PWA). Após a primeira
+visita, a interface estática permanece disponível em conexões instáveis; dados
+autenticados continuam exigindo internet para preservar sua consistência.
+
 > Nota de segurança: o JWT permanece em `localStorage` neste MVP para manter o
 > front-end estático simples. Para produção, migrar para cookie `HttpOnly`,
 > `Secure` e `SameSite`, acompanhado de proteção CSRF.
