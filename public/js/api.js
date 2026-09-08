@@ -1,4 +1,5 @@
 const API_BASE = '/api';
+const FILA_OFFLINE = 'tp_fila_offline';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -57,10 +58,30 @@ async function api(path, opts = {}) {
   const token = Sessao.token();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(API_BASE + path, { ...opts, headers });
+  let res;
+  try { res = await fetch(API_BASE + path, { ...opts, headers }); } catch (erro) {
+    const filaPermitida = opts.method === 'POST' && (/^\/aluno\/(projetos|missao\/\d+\/tentativa|ralis)/).test(path);
+    if (!filaPermitida) throw erro;
+    const fila = JSON.parse(localStorage.getItem(FILA_OFFLINE) || '[]');
+    fila.push({ path, opts: { method: opts.method, body: opts.body }, usuarioId: Sessao.usuario()?.id, criadoEm: new Date().toISOString() });
+    localStorage.setItem(FILA_OFFLINE, JSON.stringify(fila));
+    return { offline: true, mensagem: 'Ação salva no aparelho e será sincronizada ao reconectar.' };
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error(data.erro || `Erro ${res.status}`);
   }
   return data;
 }
+
+async function sincronizarFilaOffline() {
+  const usuario = Sessao.usuario(); const fila = JSON.parse(localStorage.getItem(FILA_OFFLINE) || '[]'); const restante = [];
+  for (const item of fila) {
+    if (!usuario || item.usuarioId !== usuario.id) { restante.push(item); continue; }
+    try { await api(item.path, item.opts); } catch (_) { restante.push(item); }
+  }
+  localStorage.setItem(FILA_OFFLINE, JSON.stringify(restante));
+}
+
+window.addEventListener('online', sincronizarFilaOffline);
+window.addEventListener('load', sincronizarFilaOffline);

@@ -66,6 +66,10 @@
       <div class="section-head"><div><h2>Projetos entregues</h2><p>Revise soluções enviadas pelas suas turmas.</p></div></div>
       <div id="teacherProjects"><div class="loading">Carregando projetos…</div></div>
     </section>
+    <section class="panel">
+      <h2 style="font-size:17px;margin-bottom:8px;">Cadastrar estudante na turma</h2><p class="tag">Use a turma selecionada no acompanhamento. A senha inicial deve ser entregue ao estudante com segurança.</p>
+      <form class="registration-form" id="studentRegistration"><input id="studentName" placeholder="Nome completo" required><input id="studentEmail" type="email" placeholder="E-mail" required><input id="studentPassword" type="password" minlength="12" placeholder="Senha inicial (mín. 12)" required><button class="btn btn-primary">Cadastrar</button><span class="feedback" id="registrationStatus"></span></form>
+    </section>
     <section class="panel feedback-composer" id="feedbackComposer" hidden>
       <div class="section-head">
         <div><h2 id="feedbackStudent">Feedback individual</h2><p>Visível somente para este estudante.</p></div>

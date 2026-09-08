@@ -33,6 +33,7 @@
         <button type="button" data-email="carlos.andrade@seduc.paudalho.pe.gov.br">Acessar como professor</button>
         <button type="button" data-email="gestao@seduc.paudalho.pe.gov.br">Acessar como gestão</button>
       </div>
+      <p class="tag"><a href="#" id="recoverPassword">Esqueci minha senha</a></p>
     </section>
   </main>
 
@@ -68,6 +69,13 @@
       } catch (falha) {
         erro.textContent = falha.message || 'Não foi possível entrar. Tente novamente.';
       }
+    });
+    document.getElementById('recoverPassword').addEventListener('click', async (evento) => {
+      evento.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const erro = document.getElementById('loginError');
+      if (!email) { erro.textContent = 'Informe seu e-mail para recuperar a senha.'; return; }
+      try { const resposta = await api('/auth/recuperar-senha', { method: 'POST', body: JSON.stringify({ email }) }); erro.textContent = resposta.mensagem; } catch (falha) { erro.textContent = falha.message; }
     });
   </script>
 </body>

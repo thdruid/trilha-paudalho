@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trilha-paudalho-v8';
+const CACHE_NAME = 'trilha-paudalho-v10';
 const APP_SHELL = ['/', '/index.html', '/aluno.html', '/professor.html', '/gestao.html', '/css/style.css', '/js/api.js', '/js/aluno.js', '/js/professor.js', '/js/gestao.js', '/manifest.webmanifest', '/icons/trilha-paudalho.svg'];
 
 self.addEventListener('install', (event) => {

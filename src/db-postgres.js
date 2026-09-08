@@ -31,10 +31,10 @@ async function writeDB(db) {
   try {
     await client.query('BEGIN');
     for (const usuario of db.usuarios) {
-      if (usuario.avatar) await client.query('UPDATE usuarios SET avatar = $1 WHERE id = $2', [usuario.avatar, usuario.id]);
+      await client.query('INSERT INTO usuarios (id,nome,email,senha_hash,papel,turma_id,turmas_ids,avatar) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (id) DO UPDATE SET avatar=EXCLUDED.avatar', [usuario.id, usuario.nome, usuario.email, usuario.senha_hash, usuario.papel, usuario.turma_id || null, JSON.stringify(usuario.turmas_ids || []), usuario.avatar || '🧑‍💻']);
     }
     for (const p of db.progresso) {
-      await client.query('UPDATE progresso SET status = $1, tentativas = $2, concluida_em = $3 WHERE usuario_id = $4 AND missao_id = $5', [p.status, p.tentativas, p.concluida_em, p.usuario_id, p.missao_id]);
+      await client.query('INSERT INTO progresso (usuario_id,missao_id,status,tentativas,concluida_em) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (usuario_id,missao_id) DO UPDATE SET status=EXCLUDED.status,tentativas=EXCLUDED.tentativas,concluida_em=EXCLUDED.concluida_em', [p.usuario_id, p.missao_id, p.status, p.tentativas, p.concluida_em]);
     }
     for (const uc of db.usuario_conquistas) {
       await client.query('INSERT INTO usuario_conquistas (usuario_id, conquista_id, obtida_em) VALUES ($1, $2, $3) ON CONFLICT (usuario_id, conquista_id) DO NOTHING', [uc.usuario_id, uc.conquista_id, uc.obtida_em]);

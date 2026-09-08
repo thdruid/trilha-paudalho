@@ -389,6 +389,11 @@ async function enviarTentativa() {
       method: 'POST',
       body: JSON.stringify({ ordem: picked }),
     });
+    if (resultado.offline) {
+      fb.textContent = resultado.mensagem;
+      fb.className = 'feedback ok';
+      return;
+    }
     if (resultado.correto) {
       let msg = `✓ Correto! +${resultado.xp_ganho} XP`;
       if (resultado.novas_conquistas.length) {

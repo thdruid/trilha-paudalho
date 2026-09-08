@@ -6,7 +6,13 @@ if (usuarioLogado) {
   document.getElementById('btnSair').addEventListener('click', Sessao.sair);
   document.getElementById('feedbackForm').addEventListener('submit', enviarFeedback);
   document.getElementById('closeFeedback').addEventListener('click', fecharFeedback);
+  document.getElementById('studentRegistration').addEventListener('submit', cadastrarEstudante);
   init();
+}
+
+async function cadastrarEstudante(evento) {
+  evento.preventDefault(); const status = document.getElementById('registrationStatus');
+  try { await api(`/professor/turma/${document.getElementById('turmaSelect').value}/estudantes`, { method: 'POST', body: JSON.stringify({ nome: document.getElementById('studentName').value, email: document.getElementById('studentEmail').value, senha: document.getElementById('studentPassword').value }) }); status.textContent = 'Estudante cadastrado.'; status.className = 'feedback ok'; evento.target.reset(); carregarEstudantes(document.getElementById('turmaSelect').value); } catch (erro) { status.textContent = erro.message; status.className = 'feedback err'; }
 }
 
 function mostrarCarregando(elemento, texto, colspan = null) {

@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const { readDB, writeDB } = require('../db');
 const { exigirAuth } = require('../auth');
 
@@ -55,6 +56,17 @@ router.get('/turma/:id/estudantes', async (req, res) => {
     });
 
   res.json(estudantes);
+});
+
+router.post('/turma/:id/estudantes', async (req, res) => {
+  const db = await readDB(); const turmaId = Number(req.params.id); const professor = db.usuarios.find((u) => u.id === req.usuario.id);
+  if (!professor || !(professor.turmas_ids || []).includes(turmaId)) return res.status(403).json({ erro: 'Sem permissão para cadastrar nesta turma.' });
+  const nome = String(req.body.nome || '').trim(); const email = String(req.body.email || '').trim().toLowerCase(); const senha = String(req.body.senha || '');
+  if (!nome || !email.includes('@') || senha.length < 12) return res.status(400).json({ erro: 'Informe nome, e-mail e senha inicial de ao menos 12 caracteres.' });
+  if (db.usuarios.some((u) => u.email.toLowerCase() === email)) return res.status(409).json({ erro: 'Este e-mail já está cadastrado.' });
+  const id = Math.max(...db.usuarios.map((u) => u.id)) + 1; db.usuarios.push({ id, nome, email, senha_hash: bcrypt.hashSync(senha, 10), papel: 'aluno', turma_id: turmaId, avatar: '🧑‍💻' });
+  db.progresso.push(...db.missoes.map((missao) => ({ usuario_id: id, missao_id: missao.id, status: missao.ordem === 1 ? 'disponivel' : 'bloqueada', tentativas: 0, concluida_em: null })));
+  db.streak[id] = 0; db.ultimo_acesso[id] = new Date().toISOString(); await writeDB(db); res.status(201).json({ id, nome, email });
 });
 
 // POST /api/professor/turma/:turmaId/estudante/:alunoId/feedback
