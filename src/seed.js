@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+if (process.env.NODE_ENV === 'production') throw new Error('O seed de demonstração não pode ser executado em produção.');
 process.env.DB_DRIVER = 'json';
 const { writeDB } = require('./db');
 

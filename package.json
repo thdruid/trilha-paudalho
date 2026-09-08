@@ -8,6 +8,7 @@
     "seed": "node src/seed.js",
     "migrate:postgres": "node src/migrate-postgres.js",
     "seed:postgres": "node src/seed-postgres.js",
+    "reset:pilot-passwords": "node src/reset-pilot-passwords.js",
     "start": "node src/server.js",
     "dev": "node src/server.js",
     "test": "node --test",

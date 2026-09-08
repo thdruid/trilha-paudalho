@@ -2,8 +2,8 @@ const assert = require('node:assert/strict');
 const { test, before, after } = require('node:test');
 require('dotenv').config();
 
-if (!process.env.DATABASE_URL) {
-  test('integração PostgreSQL requer DATABASE_URL', { skip: true }, () => {});
+if (!process.env.DATABASE_URL || !process.env.POSTGRES_TEST_EMAIL || !process.env.POSTGRES_TEST_PASSWORD) {
+  test('integração PostgreSQL requer credenciais de teste', { skip: true }, () => {});
 } else {
   const { criarApp } = require('../src/server');
   let servidor;
@@ -23,7 +23,7 @@ if (!process.env.DATABASE_URL) {
     const login = await fetch(`${baseUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'carlos.andrade@seduc.paudalho.pe.gov.br', senha: '123456' }),
+      body: JSON.stringify({ email: process.env.POSTGRES_TEST_EMAIL, senha: process.env.POSTGRES_TEST_PASSWORD }),
     });
     assert.equal(login.status, 200);
     const { token } = await login.json();
