@@ -112,6 +112,7 @@ h1,h2,h3,.display{
 .xp-bar{height:8px;background:var(--line);border-radius:5px;overflow:hidden;}
 .xp-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));}
 .streak{font-size:13px;color:var(--coral);font-weight:600;display:flex;align-items:center;gap:6px;}
+.avatar-picker{display:flex;align-items:center;gap:10px;margin:-16px 0 22px;font-size:12px;color:var(--ink-soft);}.avatar-picker>div{display:flex;gap:5px;}.avatar-picker button{width:32px;height:32px;border:1px solid var(--line);border-radius:50%;background:#fff;font-size:16px;cursor:pointer;}.avatar-picker button:hover,.avatar-picker button:focus{border-color:var(--teal);outline:none;}
 
 .section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;flex-wrap:wrap;gap:6px;}
 .section-head h2{font-size:18px;}

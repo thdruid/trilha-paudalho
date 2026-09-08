@@ -77,7 +77,7 @@ test('interface expõe os recursos necessários para instalação como PWA', asy
   assert.equal((await manifesto.json()).display, 'standalone');
   const serviceWorker = await fetch(`${origem}/sw.js`);
   assert.equal(serviceWorker.status, 200);
-  assert.match(await serviceWorker.text(), /trilha-paudalho-v6/);
+  assert.match(await serviceWorker.text(), /trilha-paudalho-v8/);
 });
 
 test('rotas exigem o papel correto', async () => {

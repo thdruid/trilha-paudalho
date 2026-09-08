@@ -177,6 +177,8 @@ const usuario_conquistas = [
 
 const feedbacks = [];
 const projetos = [];
+const ralis = [{ id: 1, titulo: 'Rali de Programação: Soluções para o bairro', descricao: 'Crie um algoritmo ou projeto que ajude a resolver um problema da escola ou comunidade.', tipo: 'rali', inicio: new Date().toISOString().slice(0, 10), fim: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10) }];
+const rali_inscricoes = [];
 
 // último acesso simulado (para calcular "dias sem atividade" no painel do professor)
 const hoje = new Date();
@@ -203,6 +205,8 @@ const db = {
   usuario_conquistas,
   feedbacks,
   projetos,
+  ralis,
+  rali_inscricoes,
   ultimo_acesso,
   streak,
 };

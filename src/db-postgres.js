@@ -1,12 +1,13 @@
 const { pool } = require('./postgres');
 
 async function readDB() {
-  const [escolas, turmas, usuarios, trilhas, missoes, progresso, conquistas, usuarioConquistas, acessos, streaks, feedbacks, projetos] = await Promise.all([
+  const [escolas, turmas, usuarios, trilhas, missoes, progresso, conquistas, usuarioConquistas, acessos, streaks, feedbacks, projetos, ralis, raliInscricoes] = await Promise.all([
     pool.query('SELECT * FROM escolas ORDER BY id'), pool.query('SELECT * FROM turmas ORDER BY id'), pool.query('SELECT * FROM usuarios ORDER BY id'),
     pool.query('SELECT * FROM trilhas ORDER BY id'), pool.query('SELECT * FROM missoes ORDER BY id'), pool.query('SELECT * FROM progresso'),
     pool.query('SELECT * FROM conquistas ORDER BY id'), pool.query('SELECT * FROM usuario_conquistas'), pool.query('SELECT * FROM ultimo_acesso'), pool.query('SELECT * FROM streak'),
     pool.query('SELECT * FROM feedbacks ORDER BY criado_em DESC'),
     pool.query('SELECT * FROM projetos ORDER BY atualizado_em DESC'),
+    pool.query('SELECT * FROM ralis ORDER BY inicio DESC'), pool.query('SELECT * FROM rali_inscricoes'),
   ]);
   return {
     escolas: escolas.rows,
@@ -21,6 +22,7 @@ async function readDB() {
     streak: Object.fromEntries(streaks.rows.map((s) => [s.usuario_id, s.dias])),
     feedbacks: feedbacks.rows,
     projetos: projetos.rows,
+    ralis: ralis.rows, rali_inscricoes: raliInscricoes.rows,
   };
 }
 
@@ -28,6 +30,9 @@ async function writeDB(db) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    for (const usuario of db.usuarios) {
+      if (usuario.avatar) await client.query('UPDATE usuarios SET avatar = $1 WHERE id = $2', [usuario.avatar, usuario.id]);
+    }
     for (const p of db.progresso) {
       await client.query('UPDATE progresso SET status = $1, tentativas = $2, concluida_em = $3 WHERE usuario_id = $4 AND missao_id = $5', [p.status, p.tentativas, p.concluida_em, p.usuario_id, p.missao_id]);
     }
@@ -40,6 +45,7 @@ async function writeDB(db) {
     for (const projeto of (db.projetos || [])) {
       await client.query('INSERT INTO projetos (id, aluno_id, titulo, problema, plano, status, criado_em, atualizado_em, professor_id, devolutiva) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (id) DO UPDATE SET titulo=EXCLUDED.titulo, problema=EXCLUDED.problema, plano=EXCLUDED.plano, status=EXCLUDED.status, atualizado_em=EXCLUDED.atualizado_em, professor_id=EXCLUDED.professor_id, devolutiva=EXCLUDED.devolutiva', [projeto.id, projeto.aluno_id, projeto.titulo, projeto.problema, projeto.plano, projeto.status, projeto.criado_em, projeto.atualizado_em, projeto.professor_id || null, projeto.devolutiva || null]);
     }
+    for (const inscricao of (db.rali_inscricoes || [])) await client.query('INSERT INTO rali_inscricoes (rali_id, aluno_id, inscrito_em) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING', [inscricao.rali_id, inscricao.aluno_id, inscricao.inscrito_em]);
     await client.query('COMMIT');
   } catch (erro) {
     await client.query('ROLLBACK');

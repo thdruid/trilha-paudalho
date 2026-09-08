@@ -33,7 +33,16 @@ router.get('/me', async (req, res) => {
     nivel,
     xpNoNivel,
     streak: db.streak[usuario.id] || 0,
+    avatar: usuario.avatar || '🧑‍💻',
   });
+});
+
+router.patch('/avatar', async (req, res) => {
+  const opcoes = ['🧑‍💻', '🧑‍🚀', '🦜', '🐝', '🐸', '🐱'];
+  const avatar = req.body.avatar;
+  if (!opcoes.includes(avatar)) return res.status(400).json({ erro: 'Avatar inválido.' });
+  const db = await readDB(); const usuario = db.usuarios.find((item) => item.id === req.usuario.id);
+  usuario.avatar = avatar; await writeDB(db); res.json({ avatar });
 });
 
 // GET /api/aluno/trilha — lista de missões com status para o aluno logado
@@ -121,6 +130,19 @@ router.post('/projetos/:id/enviar', async (req, res) => {
   projeto.status = 'enviado'; projeto.atualizado_em = new Date().toISOString();
   await writeDB(db);
   res.json(projeto);
+});
+
+router.get('/ralis', async (req, res) => {
+  const db = await readDB();
+  res.json((db.ralis || []).map((rali) => ({ ...rali, inscrito: (db.rali_inscricoes || []).some((item) => item.rali_id === rali.id && item.aluno_id === req.usuario.id) })));
+});
+
+router.post('/ralis/:id/inscricao', async (req, res) => {
+  const db = await readDB(); const raliId = Number(req.params.id);
+  if (!(db.ralis || []).some((rali) => rali.id === raliId)) return res.status(404).json({ erro: 'Rali não encontrado.' });
+  const inscricoes = db.rali_inscricoes || [];
+  if (!inscricoes.some((item) => item.rali_id === raliId && item.aluno_id === req.usuario.id)) inscricoes.push({ rali_id: raliId, aluno_id: req.usuario.id, inscrito_em: new Date().toISOString() });
+  db.rali_inscricoes = inscricoes; await writeDB(db); res.status(201).json({ inscrito: true });
 });
 
 // POST /api/aluno/missao/:id/tentativa  { ordem: [0,2,1,...] }

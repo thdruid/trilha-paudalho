@@ -8,6 +8,7 @@ if (usuarioLogado) {
   carregarConquistas();
   configurarNavegacaoEstudante();
   configurarProjetos();
+  configurarAvatares();
 }
 
 function configurarNavegacaoEstudante() {
@@ -15,13 +16,19 @@ function configurarNavegacaoEstudante() {
     botao.addEventListener('click', () => {
       const painelAtivo = botao.dataset.panel;
       document.querySelectorAll('.student-tab').forEach((tab) => tab.classList.toggle('active', tab === botao));
-      ['missionsPanel', 'learnPanel', 'projectsPanel', 'feedbackPanel'].forEach((id) => {
+      ['missionsPanel', 'learnPanel', 'projectsPanel', 'feedbackPanel', 'rallyPanel'].forEach((id) => {
         document.getElementById(id).hidden = id !== painelAtivo;
       });
       if (painelAtivo === 'feedbackPanel') carregarFeedbacks();
+      if (painelAtivo === 'rallyPanel') carregarRalis();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+}
+
+async function carregarRalis() {
+  const lista = document.getElementById('rallyList');
+  try { const ralis = await api('/aluno/ralis'); lista.replaceChildren(...ralis.map((rali) => { const card = document.createElement('article'); card.className = 'feedback-card'; const h = document.createElement('h3'); h.textContent = rali.titulo; const p = document.createElement('p'); p.textContent = rali.descricao; card.append(h, p); const b = document.createElement('button'); b.className = 'btn btn-primary'; b.textContent = rali.inscrito ? 'Inscrito' : 'Participar'; b.disabled = rali.inscrito; b.addEventListener('click', async () => { await api(`/aluno/ralis/${rali.id}/inscricao`, { method: 'POST' }); carregarRalis(); }); card.appendChild(b); return card; })); } catch (erro) { lista.textContent = erro.message; }
 }
 
 async function carregarFeedbacks() {
@@ -105,7 +112,7 @@ async function carregarPerfil() {
     const iniciais = p.nome.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
     const xpNoNivelPct = p.xpNoNivel; // já é 0-99 (xp % 100)
     el.innerHTML = `
-        <div class="avatar">${escaparHtml(iniciais)}</div>
+        <div class="avatar" aria-label="Seu avatar">${escaparHtml(p.avatar || iniciais)}</div>
       <div class="profile-info">
         <div class="name">${p.nome} — ${p.turma || ''}</div>
         <div class="school">${escaparHtml(p.escola)}</div>
@@ -223,6 +230,16 @@ function ordemPedagogica(missao = missaoAtual) {
     'projeto final': 7,
   };
   return porTitulo[String(missao?.titulo || '').trim().toLowerCase()] || 99;
+}
+
+function configurarAvatares() {
+  const opcoes = ['🧑‍💻', '🧑‍🚀', '🦜', '🐝', '🐸', '🐱'];
+  const area = document.getElementById('avatarChoices');
+  area.replaceChildren(...opcoes.map((avatar) => {
+    const botao = document.createElement('button'); botao.type = 'button'; botao.textContent = avatar; botao.title = 'Selecionar avatar';
+    botao.addEventListener('click', async () => { try { await api('/aluno/avatar', { method: 'PATCH', body: JSON.stringify({ avatar }) }); carregarPerfil(); } catch (erro) { alert(erro.message); } });
+    return botao;
+  }));
 }
 
 function modoDaMissao() {

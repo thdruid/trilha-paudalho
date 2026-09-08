@@ -28,6 +28,7 @@
       <button class="student-tab" type="button" data-panel="learnPanel">Aprender</button>
       <button class="student-tab" type="button" data-panel="projectsPanel">Projetos</button>
       <button class="student-tab" type="button" data-panel="feedbackPanel">Feedbacks</button>
+      <button class="student-tab" type="button" data-panel="rallyPanel">Ralis</button>
     </nav>
   </div>
 </div>
@@ -39,6 +40,7 @@
     <div class="profile-row" id="profileRow">
       <div class="loading">Carregando perfil…</div>
     </div>
+    <div class="avatar-picker" aria-label="Escolha seu avatar"><span>Meu avatar:</span><div id="avatarChoices"></div></div>
 
     <div class="section-head">
       <h2>Trilha: Algoritmos e Programação</h2>
@@ -149,6 +151,7 @@
       </div>
       <div class="feedback-list" id="feedbackList"><div class="loading">Carregando feedbacks…</div></div>
     </section>
+    <section id="rallyPanel" hidden aria-labelledby="rallyTitle"><div class="learn-hero"><div><span class="learn-kicker">Desafio coletivo</span><h2 id="rallyTitle">Ralis e hackathons</h2><p>Participe de desafios de programação e apresente uma solução para problemas reais.</p></div><span class="learn-illustration">🏁</span></div><div class="feedback-list" id="rallyList"><div class="loading">Carregando ralis…</div></div></section>
 
   </div>
 </div>

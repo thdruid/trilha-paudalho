@@ -10,6 +10,7 @@ const gestaoRoutes = require('./routes/gestao');
 
 const PORT = process.env.PORT || 4000;
 const usarPostgres = Boolean(process.env.DATABASE_URL) && process.env.DB_DRIVER !== 'json';
+const origensPermitidas = (process.env.ALLOWED_ORIGINS || '').split(',').map((origem) => origem.trim()).filter(Boolean);
 
 function criarApp() {
   const app = express();
@@ -24,7 +25,10 @@ function criarApp() {
     });
     next();
   });
-  app.use(cors());
+  app.use(cors({ origin(origin, callback) {
+    if (!origin || origensPermitidas.includes(origin) || (process.env.NODE_ENV !== 'production' && !origensPermitidas.length)) return callback(null, true);
+    return callback(null, false);
+  } }));
   app.use(express.json());
 
   app.use('/api/auth', authRoutes);
