@@ -12,6 +12,17 @@ const PORT = process.env.PORT || 4000;
 
 function criarApp() {
   const app = express();
+  app.disable('x-powered-by');
+  app.use((req, res, next) => {
+    res.set({
+      'Content-Security-Policy': "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+    });
+    next();
+  });
   app.use(cors());
   app.use(express.json());
 

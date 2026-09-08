@@ -59,6 +59,14 @@ test('login rejeita credenciais inválidas e gera sessão para credenciais váli
   assert.ok(await login('mariajulia@aluno.paudalho.pe.gov.br'));
 });
 
+test('API envia cabeçalhos básicos de segurança', async () => {
+  const resposta = await fetch(`${baseUrl}/health`);
+  assert.equal(resposta.headers.get('x-powered-by'), null);
+  assert.equal(resposta.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(resposta.headers.get('x-frame-options'), 'DENY');
+  assert.match(resposta.headers.get('content-security-policy'), /default-src 'self'/);
+});
+
 test('rotas exigem o papel correto', async () => {
   const aluno = await login('mariajulia@aluno.paudalho.pe.gov.br');
   assert.equal((await requisicao('/professor/turmas', autenticado(aluno))).status, 403);

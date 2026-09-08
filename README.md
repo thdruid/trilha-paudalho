@@ -5,6 +5,8 @@
 > `Secure` e `SameSite`, acompanhado de proteção CSRF.
 > Para iniciar em produção, defina também `JWT_SECRET` com uma chave aleatória
 > de pelo menos 32 caracteres; a aplicação rejeita a chave padrão nesse ambiente.
+> A aplicação também envia cabeçalhos de segurança para limitar execução de
+> conteúdo externo, incorporação em frames e acesso a permissões do navegador.
 
 Plataforma gamificada de aprendizagem de Algoritmos e Programação (BNCC Computação)
 para os Anos Finais do Ensino Fundamental — protótipo funcional desenvolvido em
